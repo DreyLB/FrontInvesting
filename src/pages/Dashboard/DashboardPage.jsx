@@ -1,6 +1,19 @@
 import { useEffect, useState } from 'react';
 import { fakeApi } from '../../services/fakeApi';
 import PortfolioEvolutionChart from '../../components/charts/PortfolioEvolutionChart';
+import {
+   LineChart,
+   Line,
+   PieChart,
+   Pie,
+   Cell,
+   ResponsiveContainer,
+   XAxis,
+   YAxis,
+   CartesianGrid,
+   Tooltip,
+   Legend,
+} from 'recharts';
 
 export default function DashboardPage({ activePortfolioId }) {
    const [dashboardData, setDashboardData] = useState(null);

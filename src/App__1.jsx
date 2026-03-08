@@ -572,6 +572,7 @@ const ThemeProvider = ({ children }) => {
    );
 };
 
+//SERÁ UTILIZADO NO LAYOUT
 const useTheme = () => useContext(ThemeContext);
 
 const ProtectedRoute = ({ children }) => {

@@ -1,14 +1,15 @@
+import React from 'react';
 import { useAuth } from '../context/AuthContext';
 import LoginPage from '../pages/Login/LoginPage';
-import { Navigate } from 'react-router-dom';
-/* import { useAuth } from '../hooks/useAuth'; */
 
-export default function ProtectedRoute({ children }) {
-   const { user } = useAuth();
-
-   if (!user) {
-      return <Navigate to="/login" />;
-   }
-
+export const ProtectedRoute = ({ children }) => {
+   const { isAuthenticated, loading } = useAuth();
+   if (loading)
+      return (
+         <div className="flex items-center justify-center min-h-screen">
+            Carregando...
+         </div>
+      );
+   if (!isAuthenticated) return <LoginPage />;
    return children;
-}
+};

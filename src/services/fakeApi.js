@@ -1,5 +1,8 @@
 import { MOCK_API_DATA } from '../data/mockData';
 
+const apiKey = '';
+const LLM_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+
 export const fakeApi = {
    login: async (username, password) => {
       await new Promise((resolve) => setTimeout(resolve, 1000));

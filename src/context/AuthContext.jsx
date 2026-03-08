@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 import { fakeApi } from '../services/fakeApi';
+import { MOCK_API_DATA } from '../data/mockData';
 
 const AuthContext = createContext();
 
