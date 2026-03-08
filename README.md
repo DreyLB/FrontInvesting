@@ -1,16 +1,104 @@
-# React + Vite
+Guia de Instalação: Sistema de Controle de Investimentos
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Este guia ajudará você a configurar e rodar o frontend React do projeto na sua máquina local.
 
-Currently, two official plugins are available:
+1. Pré-requisitos
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Certifique-se de ter o Node.js instalado (versão 18 ou superior).
 
-## React Compiler
+2. Criar o Projeto
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+Abra o seu terminal e execute os seguintes comandos:
 
-## Expanding the ESLint configuration
+# Criar um novo projeto com Vite e React
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+npm create vite@latest InvestingFrontend -- --template react
+
+# Entrar na pasta do projeto
+
+cd InvestingFrontend
+
+# Instalar as dependências base
+
+npm install
+
+3. Instalar Dependências do Projeto
+
+Instale as bibliotecas de gráficos e a versão 3 do Tailwind CSS (para garantir compatibilidade com o ficheiro de configuração):
+
+npm install recharts lucide-react
+npm install -D tailwindcss@3 postcss autoprefixer
+
+4. Configurar Tailwind (Criação Manual)
+
+Como o comando npx tailwindcss init pode falhar em algumas máquinas, crie os dois arquivos abaixo na raiz do seu projeto (mesma pasta onde está o package.json):
+
+Arquivo 1: tailwind.config.js
+
+Crie este arquivo e cole:
+
+/** @type {import('tailwindcss').Config} \*/
+export default {
+content: [
+"./index.html",
+"./src/**/\*.{js,ts,jsx,tsx}",
+],
+darkMode: 'class',
+theme: {
+extend: {
+fontFamily: {
+inter: ['Inter', 'sans-serif'],
+},
+},
+},
+plugins: [],
+}
+
+Arquivo 2: postcss.config.js
+
+Crie este arquivo e cole:
+
+export default {
+plugins: {
+tailwindcss: {},
+autoprefixer: {},
+},
+}
+
+5. Ajustar arquivos do Vite e CSS
+
+src/index.css
+
+Substitua todo o conteúdo por:
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+font-family: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
+
+src/App.jsx
+
+Apague tudo no arquivo src/App.jsx e cole o código completo do dashboard (InvestmentDashboard.jsx) que geramos aqui no chat.
+
+6. Configurar a API do Gemini (Opcional)
+
+No arquivo src/App.jsx, localize a variável:
+const apiKey = "";
+Coloque sua chave gerada no Google AI Studio.
+
+7. Rodar o Projeto
+
+No terminal:
+
+npm run dev
+
+Abra o link exibido (ex: http://localhost:5173).
+
+Solução de problemas (Erro de Executável)
+
+Se o erro de "could not determine executable" persistir mesmo criando os arquivos manuais, limpe o cache do npm e tente instalar novamente:
+npm cache clean --force
+npm install
