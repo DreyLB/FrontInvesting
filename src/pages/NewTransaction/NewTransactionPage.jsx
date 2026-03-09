@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { fakeApi } from '../../services/fakeApi';
+import TomSelectInput from '../../components/TomSelect/TomSelectInput';
 
 export default function NewTransactionPage() {
    const [type, setType] = useState('Compra');
@@ -9,6 +10,11 @@ export default function NewTransactionPage() {
    const [value, setValue] = useState('');
    const [date, setDate] = useState('');
    const [message, setMessage] = useState(null);
+   const operationOptions = [
+      { value: 'Compra', label: 'Compra' },
+      { value: 'Venda', label: 'Venda' },
+      { value: 'Dividendo', label: 'Dividendo' },
+   ];
 
    const handleSubmit = async (e) => {
       e.preventDefault();
@@ -62,16 +68,11 @@ export default function NewTransactionPage() {
                   >
                      Tipo de Operação
                   </label>
-                  <select
-                     id="type"
+                  <TomSelectInput
+                     options={operationOptions}
                      value={type}
-                     onChange={(e) => setType(e.target.value)}
-                     className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700"
-                  >
-                     <option value="Compra">Compra</option>
-                     <option value="Venda">Venda</option>
-                     <option value="Dividendo">Dividendo</option>
-                  </select>
+                     onChange={(value) => setType(value)}
+                  />
                </div>
                <div>
                   <label
