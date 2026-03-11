@@ -1,6 +1,22 @@
 import { useState } from 'react';
 import { fakeApi } from '../../services/fakeApi';
 
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+   Select,
+   SelectTrigger,
+   SelectValue,
+   SelectContent,
+   SelectItem,
+   SelectGroup,
+   SelectLabel,
+} from '@/components/ui/select';
+
+import { Field, FieldLabel, FieldDescription } from '@/components/ui/field';
+
+import { Plus } from 'lucide-react';
+
 export default function NewTransactionPage() {
    const [type, setType] = useState('Compra');
    const [asset, setAsset] = useState('');
@@ -90,21 +106,23 @@ export default function NewTransactionPage() {
                   />
                </div>
                <div>
-                  <label
-                     className="block text-gray-700 dark:text-gray-200 font-semibold mb-2"
-                     htmlFor="asset"
-                  >
-                     Ativo
-                  </label>
-                  <input
-                     id="asset"
-                     type="text"
-                     placeholder="Ex: PETR4"
-                     value={asset}
-                     onChange={(e) => setAsset(e.target.value)}
-                     className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700"
-                     required
-                  />
+                  <Field>
+                     <FieldLabel
+                        htmlFor="asset"
+                        className="block text-gray-700 dark:text-gray-200 font-semibold mb-2"
+                     >
+                        Ativo
+                     </FieldLabel>
+                     <Input
+                        id="input-field-username"
+                        type="text"
+                        placeholder="Enter your username"
+                        className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700"
+                     />
+                     <FieldDescription>
+                        Choose a unique username for your account.
+                     </FieldDescription>
+                  </Field>
                </div>
                {type !== 'Dividendo' ? (
                   <>
@@ -171,12 +189,13 @@ export default function NewTransactionPage() {
                      {message.text}
                   </div>
                )}
-               <button
+               <Button
                   type="submit"
-                  className="w-full bg-indigo-600 text-white font-bold py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:shadow-outline transition-colors"
+                  className="bg-indigo-600 text-white font-bold py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:shadow-outline transition-colors"
                >
+                  <Plus className="mr-2 h-4 w-4" />
                   Registrar Transação
-               </button>
+               </Button>
             </form>
          </div>
       </div>
