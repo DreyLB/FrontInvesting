@@ -32,7 +32,7 @@ export default function ReportsPage({ activePortfolioId }) {
 
    if (loading)
       return (
-         <div className="text-center mt-8 text-gray-800 dark:text-gray-200">
+         <div className="text-center mt-8 text-gray-800 dark:text-[#A1A1AA]">
             Carregando relatórios...
          </div>
       );
@@ -65,71 +65,78 @@ export default function ReportsPage({ activePortfolioId }) {
 
    return (
       <div className="space-y-8">
-         <h2 className="text-3xl font-bold text-gray-800 dark:text-white">
+         <h2 className="text-3xl font-bold text-gray-800 dark:text-[#F4F4F5]">
             Relatórios
          </h2>
-         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md overflow-x-auto">
-            <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-4">
+         <div className="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] p-6 rounded-lg shadow-sm">
+            <h3 className="text-xl font-semibold text-gray-800 dark:text-[#F4F4F5] mb-4">
                Dividendos Recebidos por Ativo (mensal)
             </h3>
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-               <thead className="bg-gray-50 dark:bg-gray-700">
-                  <tr>
-                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                        Ativo
-                     </th>
-                     {months.map((month) => (
-                        <th
-                           key={month}
-                           className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
-                        >
-                           {month}
+            <div className="overflow-x-auto rounded-lg border border-gray-200 dark:border-[#27272A]">
+               <table className="min-w-full divide-y divide-gray-200 dark:divide-[#27272A]">
+                  <thead className="bg-gray-50 dark:bg-[#09090B]">
+                     <tr>
+                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-[#A1A1AA] uppercase tracking-wider">
+                           Ativo
                         </th>
-                     ))}
-                     <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                        Total
-                     </th>
-                  </tr>
-               </thead>
-               <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                  {data.map((dividend, index) => (
-                     <tr key={index}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                           {dividend.asset}
-                        </td>
                         {months.map((month) => (
-                           <td
-                              key={`${dividend.asset}-${month}`}
-                              className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 text-center"
+                           <th
+                              key={month}
+                              className="px-6 py-4 text-center text-xs font-semibold text-gray-500 dark:text-[#A1A1AA] uppercase tracking-wider"
                            >
-                              {dividend[month]
-                                 ? `R$ ${dividend[month].toFixed(2)}`
-                                 : '-'}
+                              {month}
+                           </th>
+                        ))}
+                        <th className="px-6 py-4 text-center text-xs font-semibold text-gray-500 dark:text-[#A1A1AA] uppercase tracking-wider">
+                           Total
+                        </th>
+                     </tr>
+                  </thead>
+                  <tbody className="bg-white dark:bg-[#18181B] divide-y divide-gray-200 dark:divide-[#27272A]">
+                     {data.map((dividend, index) => (
+                        <tr
+                           key={index}
+                           className="hover:bg-gray-50 dark:hover:bg-[#27272A]/50 transition-colors"
+                        >
+                           <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-[#F4F4F5]">
+                              {dividend.asset}
+                           </td>
+                           {months.map((month) => (
+                              <td
+                                 key={`${dividend.asset}-${month}`}
+                                 className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-[#A1A1AA] text-center"
+                              >
+                                 {dividend[month]
+                                    ? `R$ ${dividend[month].toFixed(2)}`
+                                    : '-'}
+                              </td>
+                           ))}
+                           <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-[#F4F4F5] text-center">
+                              R$ {calculateTotalAsset(dividend).toFixed(2)}
+                           </td>
+                        </tr>
+                     ))}
+                  </tbody>
+                  <tfoot className="bg-gray-50 dark:bg-[#09090B] border-t border-gray-200 dark:border-[#27272A]">
+                     <tr>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-[#F4F4F5]">
+                           Total
+                        </td>
+                        {totalMonths.map((monthData) => (
+                           <td
+                              key={monthData.month}
+                              className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-[#F4F4F5] text-center"
+                           >
+                              R$ {monthData.total.toFixed(2)}
                            </td>
                         ))}
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-white text-center">
-                           R$ {calculateTotalAsset(dividend).toFixed(2)}
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-green-600 dark:text-green-400 text-center">
+                           R$ {totalReceived.toFixed(2)}
                         </td>
                      </tr>
-                  ))}
-                  <tr className="bg-gray-200 dark:bg-gray-700 font-bold">
-                     <td className="px-6 py-4 text-sm text-gray-900 dark:text-white">
-                        Total
-                     </td>
-                     {totalMonths.map((monthData) => (
-                        <td
-                           key={monthData.month}
-                           className="px-6 py-4 text-sm text-gray-900 dark:text-white text-center"
-                        >
-                           R$ {monthData.total.toFixed(2)}
-                        </td>
-                     ))}
-                     <td className="px-6 py-4 text-sm text-gray-900 dark:text-white text-center">
-                        R$ {totalReceived.toFixed(2)}
-                     </td>
-                  </tr>
-               </tbody>
-            </table>
+                  </tfoot>
+               </table>
+            </div>
          </div>
       </div>
    );

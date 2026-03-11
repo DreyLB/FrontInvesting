@@ -18,7 +18,7 @@ export default function TransactionsPage({ activePortfolioId }) {
 
    if (loading)
       return (
-         <div className="text-center mt-8 text-gray-800 dark:text-gray-200">
+         <div className="text-center mt-8 text-gray-800 dark:text-[#A1A1AA]">
             Carregando transações...
          </div>
       );
@@ -31,50 +31,55 @@ export default function TransactionsPage({ activePortfolioId }) {
 
    return (
       <div className="space-y-8">
-         <h2 className="text-3xl font-bold text-gray-800 dark:text-white">
+         <h2 className="text-3xl font-bold text-gray-800 dark:text-[#F4F4F5]">
             Movimentações
          </h2>
-         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-               <thead className="bg-gray-50 dark:bg-gray-700">
-                  <tr>
-                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                        Data
-                     </th>
-                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                        Tipo
-                     </th>
-                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                        Ativo
-                     </th>
-                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                        Valor
-                     </th>
-                  </tr>
-               </thead>
-               <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                  {data.map((transaction) => (
-                     <tr key={transaction.id}>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                           {transaction.date}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                           {transaction.type}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                           {transaction.asset || '-'}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                           R${' '}
-                           {(
-                              transaction.price * transaction.quantity ||
-                              transaction.value
-                           ).toFixed(2)}
-                        </td>
+         <div className="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] rounded-lg shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
+               <table className="min-w-full divide-y divide-gray-200 dark:divide-[#27272A]">
+                  <thead className="bg-gray-50 dark:bg-[#09090B]">
+                     <tr>
+                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-[#A1A1AA] uppercase tracking-wider">
+                           Data
+                        </th>
+                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-[#A1A1AA] uppercase tracking-wider">
+                           Tipo
+                        </th>
+                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-[#A1A1AA] uppercase tracking-wider">
+                           Ativo
+                        </th>
+                        <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-[#A1A1AA] uppercase tracking-wider">
+                           Valor
+                        </th>
                      </tr>
-                  ))}
-               </tbody>
-            </table>
+                  </thead>
+                  <tbody className="bg-white dark:bg-[#18181B] divide-y divide-gray-200 dark:divide-[#27272A]">
+                     {data.map((transaction) => (
+                        <tr
+                           key={transaction.id}
+                           className="hover:bg-gray-50 dark:hover:bg-[#27272A]/50 transition-colors"
+                        >
+                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-[#A1A1AA]">
+                              {transaction.date}
+                           </td>
+                           <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-[#F4F4F5]">
+                              {transaction.type}
+                           </td>
+                           <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-[#F4F4F5]">
+                              {transaction.asset || '-'}
+                           </td>
+                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-[#F4F4F5]">
+                              R${' '}
+                              {(
+                                 transaction.price * transaction.quantity ||
+                                 transaction.value
+                              ).toFixed(2)}
+                           </td>
+                        </tr>
+                     ))}
+                  </tbody>
+               </table>
+            </div>
          </div>
       </div>
    );

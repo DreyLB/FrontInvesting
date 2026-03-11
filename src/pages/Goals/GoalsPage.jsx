@@ -17,7 +17,7 @@ export default function GoalsPage({ activePortfolioId }) {
 
    if (loading)
       return (
-         <div className="text-center mt-8 text-gray-800 dark:text-gray-200">
+         <div className="text-center mt-8 text-gray-800 dark:text-[#A1A1AA]">
             Carregando metas...
          </div>
       );
@@ -33,23 +33,23 @@ export default function GoalsPage({ activePortfolioId }) {
 
    return (
       <div className="space-y-8">
-         <h2 className="text-3xl font-bold text-gray-800 dark:text-white">
+         <h2 className="text-3xl font-bold text-gray-800 dark:text-[#F4F4F5]">
             Minhas Metas
          </h2>
          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {data.map((goal) => (
                <div
                   key={goal.id}
-                  className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md"
+                  className="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] p-6 rounded-lg shadow-sm"
                >
-                  <h3 className="text-lg font-bold text-indigo-600 dark:text-indigo-400">
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-[#F4F4F5]">
                      {goal.name}
                   </h3>
-                  <p className="text-gray-600 dark:text-gray-300 mt-2">
+                  <p className="text-gray-600 dark:text-[#A1A1AA] mt-2 text-sm">
                      {goal.description}
                   </p>
-                  <div className="mt-4">
-                     <div className="flex justify-between text-sm text-gray-800 dark:text-gray-200">
+                  <div className="mt-6">
+                     <div className="flex justify-between text-sm font-medium text-gray-800 dark:text-[#F4F4F5]">
                         <span>
                            R$ {goal.currentValue.toLocaleString('pt-BR')}
                         </span>
@@ -57,18 +57,20 @@ export default function GoalsPage({ activePortfolioId }) {
                            R$ {goal.targetValue.toLocaleString('pt-BR')}
                         </span>
                      </div>
-                     <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2.5 mt-2">
+                     <div className="w-full bg-gray-200 dark:bg-[#27272A] rounded-full h-2 mt-2">
                         <div
-                           className="bg-indigo-600 h-2.5 rounded-full"
+                           className="bg-gray-800 dark:bg-[#F4F4F5] h-2 rounded-full transition-all"
                            style={{ width: `${calculateProgress(goal)}%` }}
                         ></div>
                      </div>
-                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                        Progresso: {calculateProgress(goal).toFixed(0)}%
-                     </p>
-                     <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                        Data Limite: {goal.deadline}
-                     </p>
+                     <div className="flex justify-between mt-2">
+                        <p className="text-xs text-gray-500 dark:text-[#A1A1AA]">
+                           Progresso: {calculateProgress(goal).toFixed(0)}%
+                        </p>
+                        <p className="text-xs text-gray-500 dark:text-[#A1A1AA]">
+                           Prazo: {goal.deadline}
+                        </p>
+                     </div>
                   </div>
                </div>
             ))}

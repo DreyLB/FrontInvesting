@@ -30,29 +30,23 @@ export default function NewTransactionPage() {
       e.preventDefault();
       setMessage(null);
 
-      let transactionData = {
-         type,
-         asset,
-         date,
-      };
+      let transactionData = { type, asset, date };
 
       if (type === 'Dividendo') {
-         transactionData = {
-            ...transactionData,
-            value: parseFloat(value),
-         };
+         transactionData.value = parseFloat(value);
       } else {
-         transactionData = {
-            ...transactionData,
-            quantity: parseFloat(quantity),
-            price: parseFloat(price),
-         };
+         transactionData.quantity = parseFloat(quantity);
+         transactionData.price = parseFloat(price);
       }
 
       try {
          // Simula a chamada para a API de criação de transação
          const response = await fakeApi.createTransaction(transactionData);
-         setMessage({ text: response.message, type: 'success' });
+         setMessage({
+            text: response.message || 'Transação registrada com sucesso!',
+            type: 'success',
+         });
+
          // Limpar formulário após o sucesso
          setAsset('');
          setQuantity('');
@@ -65,71 +59,89 @@ export default function NewTransactionPage() {
    };
 
    return (
-      <div className="space-y-8">
-         <h2 className="text-3xl font-bold text-gray-800 dark:text-white">
-            Nova Transação
-         </h2>
-         <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-            <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="max-w-3xl mx-auto space-y-6">
+         <div>
+            <h2 className="text-2xl font-bold text-gray-800 dark:text-[#F4F4F5]">
+               Nova Transação
+            </h2>
+            <p className="text-sm text-gray-500 dark:text-[#A1A1AA] mt-1">
+               Registre suas compras, vendas e proventos na carteira.
+            </p>
+         </div>
+
+         {/* Card Principal */}
+         <div className="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] p-6 md:p-8 rounded-xl shadow-sm">
+            <form onSubmit={handleSubmit} className="space-y-6">
+               {/* Toggle Tipo de Operação */}
                <div>
-                  <label
-                     className="block text-gray-700 dark:text-gray-200 font-semibold mb-2"
-                     htmlFor="type"
-                  >
+                  <label className="block text-sm font-medium text-gray-700 dark:text-[#F4F4F5] mb-2">
                      Tipo de Operação
                   </label>
-                  <select
-                     id="type"
-                     value={type}
-                     onChange={(e) => setType(e.target.value)}
-                     className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700"
-                  >
-                     <option value="Compra">Compra</option>
-                     <option value="Venda">Venda</option>
-                     <option value="Dividendo">Dividendo</option>
-                  </select>
+                  <div className="flex p-1 space-x-1 bg-gray-100 dark:bg-[#09090B] rounded-lg border border-gray-200 dark:border-[#27272A]">
+                     {['Compra', 'Venda', 'Dividendo'].map((op) => (
+                        <button
+                           key={op}
+                           type="button"
+                           onClick={() => setType(op)}
+                           className={`flex-1 py-2.5 text-sm font-semibold rounded-md transition-all ${
+                              type === op
+                                 ? 'bg-white dark:bg-[#27272A] text-indigo-600 dark:text-white shadow-sm'
+                                 : 'text-gray-500 dark:text-[#A1A1AA] hover:text-gray-700 dark:hover:text-[#F4F4F5]'
+                           }`}
+                        >
+                           {op}
+                        </button>
+                     ))}
+                  </div>
                </div>
-               <div>
-                  <label
-                     className="block text-gray-700 dark:text-gray-200 font-semibold mb-2"
-                     htmlFor="date"
-                  >
-                     Data
-                  </label>
-                  <input
-                     id="date"
-                     type="date"
-                     value={date}
-                     onChange={(e) => setDate(e.target.value)}
-                     className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700"
-                     required
-                  />
-               </div>
-               <div>
-                  <Field>
-                     <FieldLabel
+
+               {/* Linha 1: Data e Ativo */}
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                     <label
+                        htmlFor="date"
+                        className="block text-sm font-medium text-gray-700 dark:text-[#F4F4F5] mb-2"
+                     >
+                        Data da Operação
+                     </label>
+                     <input
+                        id="date"
+                        type="date"
+                        value={date}
+                        onChange={(e) => setDate(e.target.value)}
+                        className="w-full p-2.5 bg-white dark:bg-[#09090B] border border-gray-300 dark:border-[#27272A] rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white transition-colors"
+                        required
+                     />
+                  </div>
+                  <div>
+                     <label
                         htmlFor="asset"
-                        className="block text-gray-700 dark:text-gray-200 font-semibold mb-2"
+                        className="block text-sm font-medium text-gray-700 dark:text-[#F4F4F5] mb-2"
                      >
                         Ativo
-                     </FieldLabel>
-                     <Input
-                        id="input-field-username"
+                     </label>
+                     <input
+                        id="asset"
                         type="text"
-                        placeholder="Enter your username"
-                        className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700"
+                        placeholder="Ex: PETR4, AAPL, BTC"
+                        value={asset}
+                        onChange={(e) => setAsset(e.target.value)}
+                        className="w-full p-2.5 bg-white dark:bg-[#09090B] border border-gray-300 dark:border-[#27272A] rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white uppercase transition-colors"
+                        required
                      />
-                     <FieldDescription>
-                        Choose a unique username for your account.
-                     </FieldDescription>
-                  </Field>
+                     <p className="text-xs text-gray-500 dark:text-[#A1A1AA] mt-1.5">
+                        Nome ou ticker do ativo financeiro.
+                     </p>
+                  </div>
                </div>
+
+               {/* Linha 2: Valores Dinâmicos */}
                {type !== 'Dividendo' ? (
-                  <>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                      <div>
                         <label
-                           className="block text-gray-700 dark:text-gray-200 font-semibold mb-2"
                            htmlFor="quantity"
+                           className="block text-sm font-medium text-gray-700 dark:text-[#F4F4F5] mb-2"
                         >
                            Quantidade
                         </label>
@@ -139,63 +151,87 @@ export default function NewTransactionPage() {
                            placeholder="Ex: 100"
                            value={quantity}
                            onChange={(e) => setQuantity(e.target.value)}
-                           className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700"
+                           className="w-full p-2.5 bg-white dark:bg-[#09090B] border border-gray-300 dark:border-[#27272A] rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white transition-colors"
                            required
                         />
                      </div>
                      <div>
                         <label
-                           className="block text-gray-700 dark:text-gray-200 font-semibold mb-2"
                            htmlFor="price"
+                           className="block text-sm font-medium text-gray-700 dark:text-[#F4F4F5] mb-2"
                         >
                            Preço Unitário
                         </label>
-                        <input
-                           id="price"
-                           type="number"
-                           step="0.01"
-                           placeholder="Ex: 28.50"
-                           value={price}
-                           onChange={(e) => setPrice(e.target.value)}
-                           className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700"
-                           required
-                        />
+                        <div className="relative">
+                           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                              <span className="text-gray-500 dark:text-[#A1A1AA] font-medium">
+                                 R$
+                              </span>
+                           </div>
+                           <input
+                              id="price"
+                              type="number"
+                              step="0.01"
+                              placeholder="0.00"
+                              value={price}
+                              onChange={(e) => setPrice(e.target.value)}
+                              className="w-full pl-10 p-2.5 bg-white dark:bg-[#09090B] border border-gray-300 dark:border-[#27272A] rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white transition-colors"
+                              required
+                           />
+                        </div>
                      </div>
-                  </>
+                  </div>
                ) : (
                   <div>
                      <label
-                        className="block text-gray-700 dark:text-gray-200 font-semibold mb-2"
                         htmlFor="value"
+                        className="block text-sm font-medium text-gray-700 dark:text-[#F4F4F5] mb-2"
                      >
-                        Valor Recebido
+                        Valor Total Recebido
                      </label>
-                     <input
-                        id="value"
-                        type="number"
-                        step="0.01"
-                        placeholder="Ex: 250.00"
-                        value={value}
-                        onChange={(e) => setValue(e.target.value)}
-                        className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:bg-gray-700"
-                        required
-                     />
+                     <div className="relative">
+                        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                           <span className="text-gray-500 dark:text-[#A1A1AA] font-medium">
+                              R$
+                           </span>
+                        </div>
+                        <input
+                           id="value"
+                           type="number"
+                           step="0.01"
+                           placeholder="0.00"
+                           value={value}
+                           onChange={(e) => setValue(e.target.value)}
+                           className="w-full pl-10 p-2.5 bg-white dark:bg-[#09090B] border border-gray-300 dark:border-[#27272A] rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white transition-colors"
+                           required
+                        />
+                     </div>
                   </div>
                )}
+
+               {/* Feedback */}
                {message && (
                   <div
-                     className={`p-3 rounded-md text-sm ${message.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}
+                     className={`p-4 rounded-lg text-sm font-medium border ${
+                        message.type === 'success'
+                           ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800'
+                           : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800'
+                     }`}
                   >
                      {message.text}
                   </div>
                )}
-               <Button
-                  type="submit"
-                  className="bg-indigo-600 text-white font-bold py-2 px-4 rounded-md hover:bg-indigo-700 focus:outline-none focus:shadow-outline transition-colors"
-               >
-                  <Plus className="mr-2 h-4 w-4" />
-                  Registrar Transação
-               </Button>
+
+               {/* Submit */}
+               <div className="pt-2">
+                  <button
+                     type="submit"
+                     className="w-full flex justify-center items-center bg-indigo-600 text-white font-semibold py-3 px-4 rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:focus:ring-offset-[#18181B] transition-colors shadow-sm"
+                  >
+                     <Plus className="mr-2 h-5 w-5" />
+                     Registrar Transação
+                  </button>
+               </div>
             </form>
          </div>
       </div>

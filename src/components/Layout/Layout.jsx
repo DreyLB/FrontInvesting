@@ -1,5 +1,4 @@
 import { useState } from 'react';
-
 import Sidebar from './Sidebar';
 
 import DashboardPage from '../../pages/Dashboard/DashboardPage';
@@ -20,7 +19,7 @@ export const Layout = () => {
    );
 
    return (
-      <div className="flex flex-col md:flex-row min-h-screen bg-gray-100 dark:bg-gray-900 font-inter">
+      <div className="flex flex-col md:flex-row min-h-screen bg-gray-100 dark:bg-[#09090B] font-inter">
          <Sidebar activePage={activePage} setActivePage={setActivePage} />
 
          <main className="flex-1 p-8 overflow-y-auto">
@@ -28,7 +27,7 @@ export const Layout = () => {
                <select
                   value={activePortfolio}
                   onChange={(e) => setActivePortfolio(e.target.value)}
-                  className="p-2 rounded-md bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 text-gray-800 dark:text-white"
+                  className="p-2 rounded-md bg-white dark:bg-[#18181B] border border-gray-300 dark:border-[#27272A] text-gray-800 dark:text-[#F4F4F5] focus:outline-none focus:ring-1 focus:ring-gray-400 dark:focus:ring-[#A1A1AA] transition-colors"
                >
                   {user.portfolios.map((p) => (
                      <option key={p.id} value={p.id}>
@@ -41,21 +40,16 @@ export const Layout = () => {
             {activePage === 'dashboard' && (
                <DashboardPage activePortfolioId={activePortfolio} />
             )}
-
             {activePage === 'portfolio' && (
                <PortfolioPage activePortfolioId={activePortfolio} />
             )}
-
             {activePage === 'transactions' && (
                <TransactionsPage activePortfolioId={activePortfolio} />
             )}
-
             {activePage === 'new-transaction' && <NewTransactionPage />}
-
             {activePage === 'reports' && (
                <ReportsPage activePortfolioId={activePortfolio} />
             )}
-
             {activePage === 'goals' && (
                <GoalsPage activePortfolioId={activePortfolio} />
             )}

@@ -5,24 +5,38 @@ const Sidebar = ({ activePage, setActivePage }) => {
    const { logout, user } = useAuth();
    const { isDarkMode, toggleTheme } = useTheme();
 
+   // Função auxiliar para gerenciar as cores do menu ativo/inativo
+   const getMenuClasses = (pageId) => {
+      const baseClasses =
+         'w-full text-left p-3 rounded-md transition-all font-medium';
+      const activeClasses =
+         'bg-gray-900 text-white dark:bg-[#27272A] dark:text-[#F4F4F5]';
+      const inactiveClasses =
+         'text-gray-600 dark:text-[#A1A1AA] hover:bg-gray-100 dark:hover:bg-[#18181B] hover:text-gray-900 dark:hover:text-[#F4F4F5]';
+
+      return `${baseClasses} ${activePage === pageId ? activeClasses : inactiveClasses}`;
+   };
+
    return (
-      <aside className="bg-white dark:bg-gray-800 md:w-64 p-4 border-r border-gray-200 dark:border-gray-700 shadow-md relative">
+      <aside className="bg-white dark:bg-[#18181B] md:w-64 p-4 border-r border-gray-200 dark:border-[#27272A] shadow-sm relative flex flex-col">
          <button
             onClick={toggleTheme}
-            className="absolute top-4 right-4 p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-white"
+            className="absolute top-4 right-4 p-2 rounded-full bg-gray-100 dark:bg-[#27272A] text-gray-800 dark:text-[#F4F4F5] hover:opacity-80 transition-opacity"
             aria-label="Toggle dark mode"
          >
             {isDarkMode ? '🌙' : '☀️'}
          </button>
-         <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-6">
+
+         <h1 className="text-2xl font-bold text-gray-900 dark:text-[#F4F4F5] mb-8 mt-2 px-2">
             Investing
          </h1>
-         <nav>
-            <ul>
+
+         <nav className="flex-1">
+            <ul className="space-y-1">
                <li>
                   <button
                      onClick={() => setActivePage('dashboard')}
-                     className={`w-full text-left p-3 rounded-md transition-colors ${activePage === 'dashboard' ? 'bg-indigo-500 text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
+                     className={getMenuClasses('dashboard')}
                   >
                      Dashboard
                   </button>
@@ -30,7 +44,7 @@ const Sidebar = ({ activePage, setActivePage }) => {
                <li>
                   <button
                      onClick={() => setActivePage('portfolio')}
-                     className={`w-full text-left p-3 rounded-md transition-colors ${activePage === 'portfolio' ? 'bg-indigo-500 text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
+                     className={getMenuClasses('portfolio')}
                   >
                      Carteira
                   </button>
@@ -38,7 +52,7 @@ const Sidebar = ({ activePage, setActivePage }) => {
                <li>
                   <button
                      onClick={() => setActivePage('transactions')}
-                     className={`w-full text-left p-3 rounded-md transition-colors ${activePage === 'transactions' ? 'bg-indigo-500 text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
+                     className={getMenuClasses('transactions')}
                   >
                      Movimentações
                   </button>
@@ -46,7 +60,7 @@ const Sidebar = ({ activePage, setActivePage }) => {
                <li>
                   <button
                      onClick={() => setActivePage('new-transaction')}
-                     className={`w-full text-left p-3 rounded-md transition-colors ${activePage === 'new-transaction' ? 'bg-indigo-500 text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
+                     className={getMenuClasses('new-transaction')}
                   >
                      Nova Transação
                   </button>
@@ -54,7 +68,7 @@ const Sidebar = ({ activePage, setActivePage }) => {
                <li>
                   <button
                      onClick={() => setActivePage('reports')}
-                     className={`w-full text-left p-3 rounded-md transition-colors ${activePage === 'reports' ? 'bg-indigo-500 text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
+                     className={getMenuClasses('reports')}
                   >
                      Relatórios
                   </button>
@@ -62,20 +76,21 @@ const Sidebar = ({ activePage, setActivePage }) => {
                <li>
                   <button
                      onClick={() => setActivePage('goals')}
-                     className={`w-full text-left p-3 rounded-md transition-colors ${activePage === 'goals' ? 'bg-indigo-500 text-white' : 'text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'}`}
+                     className={getMenuClasses('goals')}
                   >
                      Metas
                   </button>
                </li>
             </ul>
          </nav>
-         <div className="absolute bottom-4 left-4 right-4">
-            <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+
+         <div className="mt-auto pt-4 border-t border-gray-200 dark:border-[#27272A]">
+            <div className="text-sm font-medium text-gray-600 dark:text-[#A1A1AA] mb-4 px-2 truncate">
                Bem-vindo, {user.name}
             </div>
             <button
                onClick={logout}
-               className="w-full p-2 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors"
+               className="w-full p-2.5 bg-red-500/10 text-red-600 dark:bg-red-500/20 dark:text-red-400 font-medium rounded-md hover:bg-red-500/20 dark:hover:bg-red-500/30 transition-colors"
             >
                Sair
             </button>

@@ -36,7 +36,7 @@ export default function PortfolioPage({ activePortfolioId }) {
 
    if (loading)
       return (
-         <div className="text-center mt-8 text-gray-800 dark:text-gray-200">
+         <div className="text-center mt-8 text-gray-800 dark:text-[#A1A1AA]">
             Carregando carteira...
          </div>
       );
@@ -57,20 +57,20 @@ export default function PortfolioPage({ activePortfolioId }) {
 
    return (
       <div className="space-y-8">
-         <h2 className="text-3xl font-bold text-gray-800 dark:text-white">
+         <h2 className="text-3xl font-bold text-gray-800 dark:text-[#F4F4F5]">
             Minha Carteira
          </h2>
-         <div className="flex space-x-4">
+         <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
             <button
                onClick={handleAnalyzePortfolio}
-               className="px-6 py-3 bg-indigo-500 text-white rounded-md shadow-md hover:bg-indigo-600 transition-colors"
+               className="px-6 py-2.5 bg-gray-900 text-white dark:bg-[#F4F4F5] dark:text-[#09090B] font-medium rounded-lg shadow-sm hover:bg-gray-800 dark:hover:bg-[#e4e4e7] transition-colors"
                disabled={loadingAnalysis}
             >
                {loadingAnalysis ? 'Analisando...' : 'Análise da Carteira ✨'}
             </button>
             <button
                onClick={handleSuggestAssets}
-               className="px-6 py-3 bg-indigo-500 text-white rounded-md shadow-md hover:bg-indigo-600 transition-colors"
+               className="px-6 py-2.5 bg-gray-100 text-gray-900 border border-gray-300 dark:bg-[#27272A] dark:text-[#F4F4F5] dark:border-[#27272A] font-medium rounded-lg shadow-sm hover:bg-gray-200 dark:hover:bg-[#3F3F46] transition-colors"
                disabled={loadingSuggestions}
             >
                {loadingSuggestions ? 'Sugerindo...' : 'Sugestão de Ativos ✨'}
@@ -78,10 +78,10 @@ export default function PortfolioPage({ activePortfolioId }) {
          </div>
 
          {(analysis || suggestions) && (
-            <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
+            <div className="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] p-6 rounded-lg shadow-sm">
                {analysis && (
                   <div
-                     className="text-gray-800 dark:text-white prose max-w-none"
+                     className="text-gray-800 dark:text-[#F4F4F5] prose dark:prose-invert max-w-none text-sm leading-relaxed"
                      dangerouslySetInnerHTML={{
                         __html: analysis.replace(/\n/g, '<br />'),
                      }}
@@ -89,7 +89,7 @@ export default function PortfolioPage({ activePortfolioId }) {
                )}
                {suggestions && (
                   <div
-                     className="text-gray-800 dark:text-white prose max-w-none"
+                     className="text-gray-800 dark:text-[#F4F4F5] prose dark:prose-invert max-w-none text-sm leading-relaxed mt-4 pt-4 border-t border-gray-200 dark:border-[#27272A]"
                      dangerouslySetInnerHTML={{
                         __html: suggestions.replace(/\n/g, '<br />'),
                      }}
@@ -100,74 +100,88 @@ export default function PortfolioPage({ activePortfolioId }) {
 
          {categories.map((category) => (
             <div key={category} className="space-y-4">
-               <h3 className="text-2xl font-semibold text-gray-800 dark:text-white">
+               <h3 className="text-xl font-semibold text-gray-800 dark:text-[#F4F4F5]">
                   {category}
                </h3>
-               <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                     <thead className="bg-gray-50 dark:bg-gray-700">
-                        <tr>
-                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                              Ativo
-                           </th>
-                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                              Tipo
-                           </th>
-                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                              Quantidade
-                           </th>
-                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                              Preço Médio
-                           </th>
-                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                              Preço Atual
-                           </th>
-                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                              Valor Atual
-                           </th>
-                           <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">
-                              P&L
-                           </th>
-                        </tr>
-                     </thead>
-                     <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                        {data
-                           .filter((asset) => asset.category === category)
-                           .map((asset) => (
-                              <tr key={asset.id}>
-                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
-                                    {asset.symbol}
-                                 </td>
-                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                    {asset.type}
-                                 </td>
-                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                    {asset.quantity}
-                                 </td>
-                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                    R$ {asset.averagePrice.toFixed(2)}
-                                 </td>
-                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                    R$ {asset.currentPrice.toFixed(2)}
-                                 </td>
-                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
-                                    R${' '}
-                                    {(
-                                       asset.quantity * asset.currentPrice
-                                    ).toFixed(2)}
-                                 </td>
-                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <span
-                                       className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${calculateProfitLoss(asset) >= 0 ? 'bg-green-100 text-green-800 dark:bg-green-700 dark:text-green-100' : 'bg-red-100 text-red-800 dark:bg-red-700 dark:text-red-100'}`}
-                                    >
+               <div className="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] rounded-lg shadow-sm overflow-hidden">
+                  <div className="overflow-x-auto">
+                     <table className="min-w-full divide-y divide-gray-200 dark:divide-[#27272A]">
+                        <thead className="bg-gray-50 dark:bg-[#09090B]">
+                           <tr>
+                              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-[#A1A1AA] uppercase tracking-wider">
+                                 Ativo
+                              </th>
+                              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-[#A1A1AA] uppercase tracking-wider">
+                                 Tipo
+                              </th>
+                              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-[#A1A1AA] uppercase tracking-wider">
+                                 Quantidade
+                              </th>
+                              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-[#A1A1AA] uppercase tracking-wider">
+                                 Preço Médio
+                              </th>
+                              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-[#A1A1AA] uppercase tracking-wider">
+                                 Preço Atual
+                              </th>
+                              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-[#A1A1AA] uppercase tracking-wider">
+                                 Valor Atual
+                              </th>
+                              <th className="px-6 py-4 text-left text-xs font-semibold text-gray-500 dark:text-[#A1A1AA] uppercase tracking-wider">
+                                 P&L
+                              </th>
+                           </tr>
+                        </thead>
+                        <tbody className="bg-white dark:bg-[#18181B] divide-y divide-gray-200 dark:divide-[#27272A]">
+                           {data
+                              .filter((asset) => asset.category === category)
+                              .map((asset) => (
+                                 <tr
+                                    key={asset.id}
+                                    className="hover:bg-gray-50 dark:hover:bg-[#27272A]/50 transition-colors"
+                                 >
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-[#F4F4F5]">
+                                       {asset.symbol}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-[#A1A1AA]">
+                                       {asset.type}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-[#A1A1AA]">
+                                       {asset.quantity}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-[#A1A1AA]">
+                                       R$ {asset.averagePrice.toFixed(2)}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-[#F4F4F5]">
+                                       R$ {asset.currentPrice.toFixed(2)}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-[#A1A1AA]">
                                        R${' '}
-                                       {calculateProfitLoss(asset).toFixed(2)}
-                                    </span>
-                                 </td>
-                              </tr>
-                           ))}
-                     </tbody>
-                  </table>
+                                       {(
+                                          asset.quantity * asset.currentPrice
+                                       ).toFixed(2)}
+                                    </td>
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                       <span
+                                          className={`px-2.5 py-1 inline-flex text-xs leading-5 font-bold rounded-md ${
+                                             calculateProfitLoss(asset) >= 0
+                                                ? 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400'
+                                                : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400'
+                                          }`}
+                                       >
+                                          {calculateProfitLoss(asset) >= 0
+                                             ? '+'
+                                             : ''}{' '}
+                                          R${' '}
+                                          {calculateProfitLoss(asset).toFixed(
+                                             2,
+                                          )}
+                                       </span>
+                                    </td>
+                                 </tr>
+                              ))}
+                        </tbody>
+                     </table>
+                  </div>
                </div>
             </div>
          ))}
