@@ -8,6 +8,16 @@ import ReportsPage from '../../pages/Reports/ReportsPage';
 import GoalsPage from '../../pages/Goals/GoalsPage';
 import NewTransactionPage from '../../pages/NewTransaction/NewTransactionPage';
 
+import {
+   Select,
+   SelectContent,
+   SelectGroup,
+   SelectItem,
+   SelectLabel,
+   SelectTrigger,
+   SelectValue,
+} from '@/components/ui/select';
+
 import { useAuth } from '../../context/AuthContext';
 
 export const Layout = () => {
@@ -24,17 +34,24 @@ export const Layout = () => {
 
          <main className="flex-1 p-8 overflow-y-auto">
             <div className="flex justify-end mb-4">
-               <select
-                  value={activePortfolio}
-                  onChange={(e) => setActivePortfolio(e.target.value)}
-                  className="p-2 rounded-md bg-white dark:bg-[#18181B] border border-gray-300 dark:border-[#27272A] text-gray-800 dark:text-[#F4F4F5] focus:outline-none focus:ring-1 focus:ring-gray-400 dark:focus:ring-[#A1A1AA] transition-colors"
+               <Select
+                  value={String(activePortfolio)}
+                  onValueChange={(value) => setActivePortfolio(value)}
                >
-                  {user.portfolios.map((p) => (
-                     <option key={p.id} value={p.id}>
-                        {p.name}
-                     </option>
-                  ))}
-               </select>
+                  <SelectTrigger className="w-full max-w-48 bg-card border-border hover:bg-muted transition">
+                     <SelectValue placeholder="Selecione o portfólio" />
+                  </SelectTrigger>
+
+                  <SelectContent className="bg-popover border border-border shadow-lg">
+                     <SelectGroup>
+                        {user.portfolios.map((p) => (
+                           <SelectItem key={p.id} value={String(p.id)}>
+                              {p.name}
+                           </SelectItem>
+                        ))}
+                     </SelectGroup>
+                  </SelectContent>
+               </Select>
             </div>
 
             {activePage === 'dashboard' && (
