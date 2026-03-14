@@ -42,7 +42,7 @@ export const Layout = () => {
                      <SelectValue placeholder="Selecione o portfólio" />
                   </SelectTrigger>
 
-                  <SelectContent className="bg-popover border border-border shadow-lg">
+                  <SelectContent className="bg-white dark:bg-popover border border-border shadow-xl">
                      <SelectGroup>
                         {user.portfolios.map((p) => (
                            <SelectItem key={p.id} value={String(p.id)}>
