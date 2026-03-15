@@ -1,29 +1,23 @@
 import React, { useState } from 'react';
 import { fakeApi } from '../../services/fakeApi';
 
+import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import {
-   Select,
-   SelectTrigger,
-   SelectValue,
-   SelectContent,
-   SelectItem,
-   SelectGroup,
-   SelectLabel,
-} from '@/components/ui/select';
-
 import { Field, FieldLabel, FieldDescription } from '@/components/ui/field';
-
 import { Calendar } from '@/components/ui/calendar';
 import {
    Popover,
    PopoverContent,
    PopoverTrigger,
 } from '@/components/ui/popover';
-import { format } from 'date-fns';
-
-import { Plus } from 'lucide-react';
+import {
+   InputGroup,
+   InputGroupAddon,
+   InputGroupInput,
+   InputGroupText,
+   InputGroupTextarea,
+} from '@/components/ui/input-group';
 
 export default function NewTransactionPage() {
    const [type, setType] = useState('Compra');
@@ -105,121 +99,103 @@ export default function NewTransactionPage() {
                </div>
 
                {/* Linha 1: Data e Ativo */}
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                     <Field className="w-full ">
-                        <FieldLabel>Data da Operação</FieldLabel>
-                        <Popover open={open} onOpenChange={setOpen}>
-                           <PopoverTrigger asChild>
-                              <Button
-                                 variant="outline"
-                                 id="date"
-                                 className="
-                                          w-full
-                                          justify-start
-                                          text-left
-                                          font-normal
-                                          bg-white
-                                          dark:bg-[#09090B]
-                                          border-gray-300
-                                          dark:border-[#27272A]
-                                          text-gray-900
-                                          dark:text-white
-                                          hover:bg-white
-                                          dark:hover:bg-[#09090B]
-                                       "
-                              >
-                                 {date
-                                    ? date.toLocaleDateString()
-                                    : 'dd/mm/aaaa'}
-                              </Button>
-                           </PopoverTrigger>
-                           <PopoverContent
-                              className="w-auto overflow-hidden p-0 "
-                              align="start"
+               <Field className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Field className="w-full">
+                     <FieldLabel>Data da Operação</FieldLabel>
+                     <Popover open={open} onOpenChange={setOpen}>
+                        <PopoverTrigger asChild>
+                           <Button
+                              variant="outline"
+                              id="date"
+                              className="text-lg h-10 px-3 py-1 border border-gray-300 dark:border-[#27272A] focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white transition-colors"
                            >
-                              <Calendar
-                                 mode="single"
-                                 selected={date}
-                                 defaultMonth={date}
-                                 captionLayout="dropdown"
-                                 className="p-5 bg-white dark:bg-background text-base [&_button]:h-8 [&_button]:w-8 [&_caption]:text-base [&_caption_dropdowns]:gap-2"
-                                 onSelect={(d) => {
-                                    setDate(d);
-                                    setOpen(false);
-                                 }}
-                              />
-                           </PopoverContent>
-                        </Popover>
-                     </Field>
-                  </div>
-                  <div>
-                     <label
-                        htmlFor="asset"
-                        className="block text-sm font-medium text-gray-700 dark:text-[#F4F4F5] mb-2"
-                     >
+                              {date ? date.toLocaleDateString() : 'dd/mm/aaaa'}
+                           </Button>
+                        </PopoverTrigger>
+                        <PopoverContent
+                           className="w-auto overflow-hidden p-0 "
+                           align="start"
+                        >
+                           <Calendar
+                              mode="single"
+                              selected={date}
+                              defaultMonth={date}
+                              captionLayout="dropdown"
+                              className="p-5 bg-white dark:bg-background text-base [&_button]:h-8 [&_button]:w-8 [&_caption]:text-base [&_caption_dropdowns]:gap-2"
+                              onSelect={(d) => {
+                                 setDate(d);
+                                 setOpen(false);
+                              }}
+                           />
+                        </PopoverContent>
+                     </Popover>
+                  </Field>
+
+                  <Field>
+                     <FieldLabel htmlFor="input-field-username">
                         Ativo
-                     </label>
-                     <input
+                     </FieldLabel>
+                     <Input
                         id="asset"
                         type="text"
                         placeholder="Ex: PETR4, AAPL, BTC"
                         value={asset}
                         onChange={(e) => setAsset(e.target.value)}
-                        className="w-full p-2.5 bg-white dark:bg-[#09090B] border border-gray-300 dark:border-[#27272A] rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white uppercase transition-colors"
+                        className={
+                           'text-lg bg-background border border-gray-300 dark:border-[#27272A] rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white transition-colors'
+                        }
                         required
                      />
-                     <p className="text-xs text-gray-500 dark:text-[#A1A1AA] mt-1.5">
+                     <FieldDescription>
                         Nome ou ticker do ativo financeiro.
-                     </p>
-                  </div>
-               </div>
+                     </FieldDescription>
+                  </Field>
+               </Field>
 
                {/* Linha 2: Valores Dinâmicos */}
                {type !== 'Dividendo' ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                     <div>
-                        <label
-                           htmlFor="quantity"
-                           className="block text-sm font-medium text-gray-700 dark:text-[#F4F4F5] mb-2"
-                        >
-                           Quantidade
-                        </label>
-                        <input
+                     <Field>
+                        <FieldLabel htmlFor="quantity">Quantidade</FieldLabel>
+                        <Input
                            id="quantity"
                            type="number"
                            placeholder="Ex: 100"
                            value={quantity}
                            onChange={(e) => setQuantity(e.target.value)}
-                           className="w-full p-2.5 bg-white dark:bg-[#09090B] border border-gray-300 dark:border-[#27272A] rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white transition-colors"
-                           required
+                           className={
+                              'text-lg bg-background border border-gray-300 dark:border-[#27272A] rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
+                           }
                         />
-                     </div>
-                     <div>
-                        <label
-                           htmlFor="price"
-                           className="block text-sm font-medium text-gray-700 dark:text-[#F4F4F5] mb-2"
+                     </Field>
+
+                     <Field>
+                        <FieldLabel htmlFor="price">Preço Unitário</FieldLabel>
+                        <InputGroup
+                           className={
+                              'text-lg bg-background border border-gray-300 dark:border-[#27272A] rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white transition-colors'
+                           }
                         >
-                           Preço Unitário
-                        </label>
-                        <div className="relative">
-                           <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                              <span className="text-gray-500 dark:text-[#A1A1AA] font-medium">
-                                 R$
-                              </span>
-                           </div>
-                           <input
+                           <InputGroupAddon>
+                              <InputGroupText>R$</InputGroupText>
+                           </InputGroupAddon>
+                           <InputGroupInput
                               id="price"
                               type="number"
                               step="0.01"
                               placeholder="0.00"
                               value={price}
                               onChange={(e) => setPrice(e.target.value)}
-                              className="w-full pl-10 p-2.5 bg-white dark:bg-[#09090B] border border-gray-300 dark:border-[#27272A] rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white transition-colors"
+                              className={
+                                 '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none  '
+                              }
                               required
                            />
-                        </div>
-                     </div>
+                           <InputGroupAddon align="inline-end">
+                              <InputGroupText>BRL</InputGroupText>
+                           </InputGroupAddon>
+                        </InputGroup>
+                     </Field>
                   </div>
                ) : (
                   <div>
