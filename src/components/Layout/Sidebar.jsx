@@ -1,20 +1,27 @@
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeProvider';
+import { useNavigate, useLocation } from 'react-router-dom';
 
-const Sidebar = ({ activePage, setActivePage }) => {
+const Sidebar = () => {
    const { logout, user } = useAuth();
    const { isDarkMode, toggleTheme } = useTheme();
+   const navigate = useNavigate();
+   const location = useLocation();
+
+   const isActive = (path) => location.pathname === path;
 
    // Função auxiliar para gerenciar as cores do menu ativo/inativo
-   const getMenuClasses = (pageId) => {
-      const baseClasses =
+   const getMenuClasses = (path) => {
+      const base =
          'w-full text-left p-3 rounded-md transition-all font-medium';
-      const activeClasses =
+
+      const active =
          'bg-gray-900 text-white dark:bg-[#27272A] dark:text-[#F4F4F5]';
-      const inactiveClasses =
+
+      const inactive =
          'text-gray-600 dark:text-[#A1A1AA] hover:bg-gray-100 dark:hover:bg-[#18181B] hover:text-gray-900 dark:hover:text-[#F4F4F5]';
 
-      return `${baseClasses} ${activePage === pageId ? activeClasses : inactiveClasses}`;
+      return `${base} ${isActive(path) ? active : inactive}`;
    };
 
    return (
@@ -35,48 +42,48 @@ const Sidebar = ({ activePage, setActivePage }) => {
             <ul className="space-y-1">
                <li>
                   <button
-                     onClick={() => setActivePage('dashboard')}
-                     className={getMenuClasses('dashboard')}
+                     onClick={() => navigate('/dashboard')}
+                     className={getMenuClasses('/dashboard')}
                   >
                      Dashboard
                   </button>
                </li>
                <li>
                   <button
-                     onClick={() => setActivePage('portfolio')}
-                     className={getMenuClasses('portfolio')}
+                     onClick={() => navigate('/portfolio')}
+                     className={getMenuClasses('/portfolio')}
                   >
                      Carteira
                   </button>
                </li>
                <li>
                   <button
-                     onClick={() => setActivePage('transactions')}
-                     className={getMenuClasses('transactions')}
+                     onClick={() => navigate('/transactions')}
+                     className={getMenuClasses('/transactions')}
                   >
                      Movimentações
                   </button>
                </li>
                <li>
                   <button
-                     onClick={() => setActivePage('new-transaction')}
-                     className={getMenuClasses('new-transaction')}
+                     onClick={() => navigate('/new-transaction')}
+                     className={getMenuClasses('/new-transaction')}
                   >
                      Nova Transação
                   </button>
                </li>
                <li>
                   <button
-                     onClick={() => setActivePage('reports')}
-                     className={getMenuClasses('reports')}
+                     onClick={() => navigate('/reports')}
+                     className={getMenuClasses('/reports')}
                   >
                      Relatórios
                   </button>
                </li>
                <li>
                   <button
-                     onClick={() => setActivePage('goals')}
-                     className={getMenuClasses('goals')}
+                     onClick={() => navigate('/goals')}
+                     className={getMenuClasses('/goals')}
                   >
                      Metas
                   </button>

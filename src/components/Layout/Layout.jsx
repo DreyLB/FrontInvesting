@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Sidebar from './Sidebar';
+import { Routes, Route, Navigate } from 'react-router-dom'
 
 import DashboardPage from '../../pages/Dashboard/DashboardPage';
 import PortfolioPage from '../../pages/Portfolio/PortfolioPage';
@@ -23,14 +24,13 @@ import { useAuth } from '../../context/AuthContext';
 export const Layout = () => {
    const { user } = useAuth();
 
-   const [activePage, setActivePage] = useState('dashboard');
    const [activePortfolio, setActivePortfolio] = useState(
       user.portfolios[0].id,
    );
 
    return (
       <div className="flex flex-col md:flex-row min-h-screen bg-gray-100 dark:bg-[#09090B] font-inter">
-         <Sidebar activePage={activePage} setActivePage={setActivePage} />
+         <Sidebar />
 
          <main className="flex-1 p-8 overflow-y-auto">
             <div className="flex justify-end mb-4">
@@ -54,22 +54,36 @@ export const Layout = () => {
                </Select>
             </div>
 
-            {activePage === 'dashboard' && (
-               <DashboardPage activePortfolioId={activePortfolio} />
-            )}
-            {activePage === 'portfolio' && (
-               <PortfolioPage activePortfolioId={activePortfolio} />
-            )}
-            {activePage === 'transactions' && (
-               <TransactionsPage activePortfolioId={activePortfolio} />
-            )}
-            {activePage === 'new-transaction' && <NewTransactionPage />}
-            {activePage === 'reports' && (
-               <ReportsPage activePortfolioId={activePortfolio} />
-            )}
-            {activePage === 'goals' && (
-               <GoalsPage activePortfolioId={activePortfolio} />
-            )}
+            <Routes>
+               <Route index element={<Navigate to="dashboard" />} />
+
+               <Route
+                  path="dashboard"
+                  element={<DashboardPage activePortfolioId={activePortfolio} />}
+               />
+
+               <Route
+                  path="portfolio"
+                  element={<PortfolioPage activePortfolioId={activePortfolio} />}
+               />
+
+               <Route
+                  path="transactions"
+                  element={<TransactionsPage activePortfolioId={activePortfolio} />}
+               />
+
+               <Route path="new-transaction" element={<NewTransactionPage />} />
+
+               <Route
+                  path="reports"
+                  element={<ReportsPage activePortfolioId={activePortfolio} />}
+               />
+
+               <Route
+                  path="goals"
+                  element={<GoalsPage activePortfolioId={activePortfolio} />}
+               />
+            </Routes>
          </main>
       </div>
    );
