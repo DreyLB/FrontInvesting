@@ -1,6 +1,16 @@
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
+import {
+   AlertDialog,
+   AlertDialogAction,
+   AlertDialogContent,
+   AlertDialogDescription,
+   AlertDialogFooter,
+   AlertDialogHeader,
+   AlertDialogOverlay,
+   AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 export default function RegisterPage() {
    const [name, setName] = useState("");
@@ -9,6 +19,7 @@ export default function RegisterPage() {
    const [confirmPassword, setConfirmPassword] = useState("");
    const [error, setError] = useState("");
    const [loading, setLoading] = useState(false);
+   const [showSuccessModal, setShowSuccessModal] = useState(false); // 👈
    const { register } = useAuth();
    const navigate = useNavigate();
 
@@ -26,7 +37,7 @@ export default function RegisterPage() {
       setLoading(false);
 
       if (success) {
-         navigate("/login", { state: { registered: true } });
+         setShowSuccessModal(true); // 👈 abre o modal em vez de redirecionar direto
       } else {
          setError("Erro ao criar conta. Tente novamente.");
       }
@@ -34,6 +45,31 @@ export default function RegisterPage() {
 
    return (
       <div className="flex items-center justify-center min-h-screen bg-gray-100 dark:bg-[#09090B] font-inter">
+         {/* Modal de sucesso */}
+         <AlertDialog open={showSuccessModal}>
+            <AlertDialogOverlay className="bg-black/50 backdrop-blur-sm" />
+            <AlertDialogContent className="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A]">
+               <AlertDialogHeader>
+                  <AlertDialogTitle className="text-gray-900 dark:text-[#F4F4F5]">
+                     Cadastro realizado com sucesso! 🎉
+                  </AlertDialogTitle>
+                  <AlertDialogDescription className="text-gray-500 dark:text-[#A1A1AA]">
+                     Sua conta foi criada. Clique em continuar para fazer seu
+                     login.
+                  </AlertDialogDescription>
+               </AlertDialogHeader>
+               <AlertDialogFooter>
+                  <AlertDialogAction
+                     onClick={() => navigate("/login")}
+                     className="bg-gray-900 text-white dark:bg-[#F4F4F5] dark:text-[#09090B] hover:bg-gray-800 dark:hover:bg-[#e4e4e7]"
+                  >
+                     Continuar para o login
+                  </AlertDialogAction>
+               </AlertDialogFooter>
+            </AlertDialogContent>
+         </AlertDialog>
+
+         {/* Formulário — igual ao anterior */}
          <div className="w-full max-w-sm p-8 bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] rounded-xl shadow-sm">
             <h2 className="text-3xl font-bold text-center text-gray-900 dark:text-[#F4F4F5] mb-2">
                Criar conta
