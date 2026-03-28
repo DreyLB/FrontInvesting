@@ -1,13 +1,13 @@
-import { useState } from 'react';
-import Sidebar from './Sidebar';
-import { Routes, Route, Navigate } from 'react-router-dom'
+import { useState, useEffect } from "react";
+import Sidebar from "./Sidebar";
+import { Routes, Route, Navigate } from "react-router-dom";
 
-import DashboardPage from '../../pages/Dashboard/DashboardPage';
-import PortfolioPage from '../../pages/Portfolio/PortfolioPage';
-import TransactionsPage from '../../pages/Transactions/TransactionsPage';
-import ReportsPage from '../../pages/Reports/ReportsPage';
-import GoalsPage from '../../pages/Goals/GoalsPage';
-import NewTransactionPage from '../../pages/NewTransaction/NewTransactionPage';
+import DashboardPage from "../../pages/Dashboard/DashboardPage";
+import PortfolioPage from "../../pages/Portfolio/PortfolioPage";
+import TransactionsPage from "../../pages/Transactions/TransactionsPage";
+import ReportsPage from "../../pages/Reports/ReportsPage";
+import GoalsPage from "../../pages/Goals/GoalsPage";
+import NewTransactionPage from "../../pages/NewTransaction/NewTransactionPage";
 
 import {
    Select,
@@ -17,19 +17,30 @@ import {
    SelectLabel,
    SelectTrigger,
    SelectValue,
-} from '@/components/ui/select';
+} from "@/components/ui/select";
 
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from "../../context/AuthContext";
 
 export const Layout = () => {
-   const { user } = useAuth();
+   const { user, portfolios } = useAuth(); // 👈
 
-   const [activePortfolio, setActivePortfolio] = useState(
-      user.portfolios[0].id,
-   );
+   const [activePortfolio, setActivePortfolio] = useState(null);
+
+   useEffect(() => {
+      if (portfolios.length > 0) {
+         setActivePortfolio(String(portfolios[0].id));
+      }
+   }, [portfolios]);
+
+   if (!activePortfolio)
+      return (
+         <div className="flex items-center justify-center min-h-screen text-gray-500 dark:text-[#A1A1AA]">
+            Carregando carteiras...
+         </div>
+      );
 
    return (
-      <div className="flex flex-col md:flex-row min-h-screen bg-gray-100 dark:bg-[#09090B] font-inter">
+      <div className="flex flex-col md:flex-row h-screen overflow-hidden bg-gray-100 dark:bg-[#09090B] font-inter">
          <Sidebar />
 
          <main className="flex-1 p-8 overflow-y-auto">
@@ -44,9 +55,9 @@ export const Layout = () => {
 
                   <SelectContent className="bg-white dark:bg-popover border border-border shadow-xl">
                      <SelectGroup>
-                        {user.portfolios.map((p) => (
+                        {portfolios.map((p) => (
                            <SelectItem key={p.id} value={String(p.id)}>
-                              {p.name}
+                              {p.nome}
                            </SelectItem>
                         ))}
                      </SelectGroup>
@@ -59,17 +70,23 @@ export const Layout = () => {
 
                <Route
                   path="dashboard"
-                  element={<DashboardPage activePortfolioId={activePortfolio} />}
+                  element={
+                     <DashboardPage activePortfolioId={activePortfolio} />
+                  }
                />
 
                <Route
                   path="portfolio"
-                  element={<PortfolioPage activePortfolioId={activePortfolio} />}
+                  element={
+                     <PortfolioPage activePortfolioId={activePortfolio} />
+                  }
                />
 
                <Route
                   path="transactions"
-                  element={<TransactionsPage activePortfolioId={activePortfolio} />}
+                  element={
+                     <TransactionsPage activePortfolioId={activePortfolio} />
+                  }
                />
 
                <Route path="new-transaction" element={<NewTransactionPage />} />

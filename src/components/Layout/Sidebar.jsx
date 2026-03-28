@@ -1,6 +1,6 @@
-import { useAuth } from '../../context/AuthContext';
-import { useTheme } from '../../context/ThemeProvider';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from "../../context/AuthContext";
+import { useTheme } from "../../context/ThemeProvider";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const Sidebar = () => {
    const { logout, user } = useAuth();
@@ -12,26 +12,25 @@ const Sidebar = () => {
 
    // Função auxiliar para gerenciar as cores do menu ativo/inativo
    const getMenuClasses = (path) => {
-      const base =
-         'w-full text-left p-3 rounded-md transition-all font-medium';
+      const base = "w-full text-left p-3 rounded-md transition-all font-medium";
 
       const active =
-         'bg-gray-900 text-white dark:bg-[#27272A] dark:text-[#F4F4F5]';
+         "bg-gray-900 text-white dark:bg-[#27272A] dark:text-[#F4F4F5]";
 
       const inactive =
-         'text-gray-600 dark:text-[#A1A1AA] hover:bg-gray-100 dark:hover:bg-[#18181B] hover:text-gray-900 dark:hover:text-[#F4F4F5]';
+         "text-gray-600 dark:text-[#A1A1AA] hover:bg-gray-100 dark:hover:bg-[#18181B] hover:text-gray-900 dark:hover:text-[#F4F4F5]";
 
       return `${base} ${isActive(path) ? active : inactive}`;
    };
 
    return (
-      <aside className="bg-white dark:bg-[#18181B] md:w-64 p-4 border-r border-gray-200 dark:border-[#27272A] shadow-sm relative flex flex-col">
+      <aside className="bg-white dark:bg-[#18181B] md:w-64 p-4 border-r border-gray-200 dark:border-[#27272A] shadow-sm relative flex flex-col h-full shrink-0">
          <button
             onClick={toggleTheme}
             className="absolute top-4 right-4 p-2 rounded-full bg-gray-100 dark:bg-[#27272A] text-gray-800 dark:text-[#F4F4F5] hover:opacity-80 transition-opacity"
             aria-label="Toggle dark mode"
          >
-            {isDarkMode ? '🌙' : '☀️'}
+            {isDarkMode ? "🌙" : "☀️"}
          </button>
 
          <h1 className="text-2xl font-bold text-gray-900 dark:text-[#F4F4F5] mb-8 mt-2 px-2">
@@ -42,48 +41,48 @@ const Sidebar = () => {
             <ul className="space-y-1">
                <li>
                   <button
-                     onClick={() => navigate('/dashboard')}
-                     className={getMenuClasses('/dashboard')}
+                     onClick={() => navigate("/dashboard")}
+                     className={getMenuClasses("/dashboard")}
                   >
                      Dashboard
                   </button>
                </li>
                <li>
                   <button
-                     onClick={() => navigate('/portfolio')}
-                     className={getMenuClasses('/portfolio')}
+                     onClick={() => navigate("/portfolio")}
+                     className={getMenuClasses("/portfolio")}
                   >
                      Carteira
                   </button>
                </li>
                <li>
                   <button
-                     onClick={() => navigate('/transactions')}
-                     className={getMenuClasses('/transactions')}
+                     onClick={() => navigate("/transactions")}
+                     className={getMenuClasses("/transactions")}
                   >
                      Movimentações
                   </button>
                </li>
                <li>
                   <button
-                     onClick={() => navigate('/new-transaction')}
-                     className={getMenuClasses('/new-transaction')}
+                     onClick={() => navigate("/new-transaction")}
+                     className={getMenuClasses("/new-transaction")}
                   >
                      Nova Transação
                   </button>
                </li>
                <li>
                   <button
-                     onClick={() => navigate('/reports')}
-                     className={getMenuClasses('/reports')}
+                     onClick={() => navigate("/reports")}
+                     className={getMenuClasses("/reports")}
                   >
                      Relatórios
                   </button>
                </li>
                <li>
                   <button
-                     onClick={() => navigate('/goals')}
-                     className={getMenuClasses('/goals')}
+                     onClick={() => navigate("/goals")}
+                     className={getMenuClasses("/goals")}
                   >
                      Metas
                   </button>

@@ -1,18 +1,22 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { authService } from "../services/authService";
-import { MOCK_API_DATA } from "../data/mockData"; // 👈 importa o mock
+import { carteiraService } from "../services/carteiraService";
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
    const [user, setUser] = useState(null);
+   const [portfolios, setPortfolios] = useState([]);
    const [loading, setLoading] = useState(true);
 
-   // Mescla o user real com os portfolios do mock
-   const buildUser = (apiUser) => ({
-      ...apiUser,
-      portfolios: MOCK_API_DATA.user.portfolios,
-   });
+   const loadPortfolios = async () => {
+      try {
+         const data = await carteiraService.listar();
+         setPortfolios(data);
+      } catch {
+         setPortfolios([]);
+      }
+   };
 
    useEffect(() => {
       const restoreSession = async () => {
@@ -20,7 +24,8 @@ export function AuthProvider({ children }) {
          if (token) {
             try {
                const apiUser = await authService.me();
-               setUser(buildUser(apiUser));
+               setUser(apiUser);
+               await loadPortfolios();
             } catch {
                localStorage.removeItem("token");
             }
@@ -33,7 +38,8 @@ export function AuthProvider({ children }) {
    const login = async (email, password) => {
       try {
          const apiUser = await authService.login(email, password);
-         setUser(buildUser(apiUser));
+         setUser(apiUser);
+         await loadPortfolios();
          return true;
       } catch {
          return false;
@@ -43,24 +49,16 @@ export function AuthProvider({ children }) {
    const logout = async () => {
       await authService.logout();
       setUser(null);
-   };
-
-   const register = async (name, email, password) => {
-      try {
-         await authService.register(name, email, password);
-         return true;
-      } catch {
-         return false;
-      }
+      setPortfolios([]);
    };
 
    return (
       <AuthContext.Provider
          value={{
             user,
+            portfolios,
             login,
             logout,
-            register,
             loading,
             isAuthenticated: !!user,
          }}
