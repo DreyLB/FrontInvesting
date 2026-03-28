@@ -1,12 +1,13 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
-import { AuthProvider } from './context/AuthContext';
+import { Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider } from "./context/AuthContext";
 
-import { ThemeProvider } from './context/ThemeProvider';
+import { ThemeProvider } from "./context/ThemeProvider";
 
-import { ProtectedRoute } from './routes/ProtectedRoute';
+import { ProtectedRoute } from "./routes/ProtectedRoute";
 
-import { Layout } from './components/Layout/Layout';
-import LoginPage from './pages/Login/LoginPage';
+import { Layout } from "./components/Layout/Layout";
+import LoginPage from "./pages/Login/LoginPage";
+import RegisterPage from "./pages/Login/RegisterPage";
 
 // Componente principal que usa o contexto de autenticação
 const App = () => {
@@ -15,6 +16,7 @@ const App = () => {
          <ThemeProvider>
             <Routes>
                <Route path="/login" element={<LoginPage />} />
+               <Route path="/register" element={<RegisterPage />} />
 
                <Route element={<ProtectedRoute />}>
                   <Route path="/*" element={<Layout />} />

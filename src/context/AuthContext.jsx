@@ -1,49 +1,75 @@
-import { createContext, useContext, useState, useEffect } from 'react';
-import { fakeApi } from '../services/fakeApi';
-import { MOCK_API_DATA } from '../data/mockData';
+import { createContext, useContext, useState, useEffect } from "react";
+import { authService } from "../services/authService";
+import { MOCK_API_DATA } from "../data/mockData"; // 👈 importa o mock
 
-const AuthContext = createContext();
+const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
-   const [isAuthenticated, setIsAuthenticated] = useState(false);
    const [user, setUser] = useState(null);
    const [loading, setLoading] = useState(true);
 
+   // Mescla o user real com os portfolios do mock
+   const buildUser = (apiUser) => ({
+      ...apiUser,
+      portfolios: MOCK_API_DATA.user.portfolios,
+   });
+
    useEffect(() => {
-      const token = localStorage.getItem('auth_token');
-      if (token) {
-         setUser(MOCK_API_DATA.user);
-         setIsAuthenticated(true);
-      }
-      setLoading(false);
+      const restoreSession = async () => {
+         const token = localStorage.getItem("token");
+         if (token) {
+            try {
+               const apiUser = await authService.me();
+               setUser(buildUser(apiUser));
+            } catch {
+               localStorage.removeItem("token");
+            }
+         }
+         setLoading(false);
+      };
+      restoreSession();
    }, []);
 
-   const login = async (username, password) => {
+   const login = async (email, password) => {
       try {
-         const response = await fakeApi.login(username, password);
-         localStorage.setItem('auth_token', response.token);
-         setUser(response.user);
-         setIsAuthenticated(true);
+         const apiUser = await authService.login(email, password);
+         setUser(buildUser(apiUser));
          return true;
-      } catch (error) {
-         console.error('Login failed:', error);
+      } catch {
          return false;
       }
    };
 
-   const logout = () => {
-      localStorage.removeItem('auth_token');
+   const logout = async () => {
+      await authService.logout();
       setUser(null);
-      setIsAuthenticated(false);
+   };
+
+   const register = async (name, email, password) => {
+      try {
+         await authService.register(name, email, password);
+         return true;
+      } catch {
+         return false;
+      }
    };
 
    return (
       <AuthContext.Provider
-         value={{ isAuthenticated, user, login, logout, loading }}
+         value={{
+            user,
+            login,
+            logout,
+            register,
+            loading,
+            isAuthenticated: !!user,
+         }}
       >
          {children}
       </AuthContext.Provider>
    );
 }
 
-export const useAuth = () => useContext(AuthContext);
+export function useAuth() {
+   return useContext(AuthContext);
+}

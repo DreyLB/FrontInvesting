@@ -1,22 +1,22 @@
-import { useState } from 'react';
-import { useAuth } from '../../context/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useState } from "react";
+import { useAuth } from "../../context/AuthContext";
+import { useNavigate, Link } from "react-router-dom";
 
 export default function LoginPage() {
-   const [username, setUsername] = useState('');
-   const [password, setPassword] = useState('');
-   const [error, setError] = useState('');
+   const [username, setUsername] = useState("");
+   const [password, setPassword] = useState("");
+   const [error, setError] = useState("");
    const { login } = useAuth();
    const navigate = useNavigate();
 
    const handleLogin = async (e) => {
       e.preventDefault();
-      setError('');
+      setError("");
       const success = await login(username, password);
       if (success) {
-         navigate('/dashboard');
+         navigate("/dashboard");
       } else {
-         setError('Credenciais inválidas. Tente novamente.');
+         setError("Credenciais inválidas. Tente novamente.");
       }
    };
 
@@ -72,6 +72,15 @@ export default function LoginPage() {
                >
                   Entrar
                </button>
+               <p className="text-center text-sm text-gray-500 dark:text-[#A1A1AA]">
+                  Não tem uma conta?{" "}
+                  <Link
+                     to="/register"
+                     className="font-semibold text-gray-900 dark:text-[#F4F4F5] hover:underline"
+                  >
+                     Criar conta
+                  </Link>
+               </p>
             </form>
          </div>
       </div>
