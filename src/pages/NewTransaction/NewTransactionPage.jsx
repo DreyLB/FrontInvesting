@@ -1,31 +1,31 @@
-import React, { useState } from 'react';
-import { fakeApi } from '../../services/fakeApi';
+import React, { useState } from "react";
+import { fakeApi } from "../../services/fakeApi";
 
-import { Plus } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Field, FieldLabel, FieldDescription } from '@/components/ui/field';
-import { Calendar } from '@/components/ui/calendar';
+import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Field, FieldLabel, FieldDescription } from "@/components/ui/field";
+import { Calendar } from "@/components/ui/calendar";
 import {
    Popover,
    PopoverContent,
    PopoverTrigger,
-} from '@/components/ui/popover';
+} from "@/components/ui/popover";
 import {
    InputGroup,
    InputGroupAddon,
    InputGroupInput,
    InputGroupText,
    InputGroupTextarea,
-} from '@/components/ui/input-group';
+} from "@/components/ui/input-group";
 
 export default function NewTransactionPage() {
-   const [type, setType] = useState('Compra');
-   const [asset, setAsset] = useState('');
-   const [quantity, setQuantity] = useState('');
-   const [price, setPrice] = useState('');
-   const [value, setValue] = useState('');
-   const [date, setDate] = useState('');
+   const [type, setType] = useState("Compra");
+   const [asset, setAsset] = useState("");
+   const [quantity, setQuantity] = useState("");
+   const [price, setPrice] = useState("");
+   const [value, setValue] = useState("");
+   const [date, setDate] = useState("");
    const [message, setMessage] = useState(null);
    const [open, setOpen] = React.useState(false);
 
@@ -35,7 +35,7 @@ export default function NewTransactionPage() {
 
       let transactionData = { type, asset, date };
 
-      if (type === 'Dividendo') {
+      if (type === "Dividendo") {
          transactionData.value = parseFloat(value);
       } else {
          transactionData.quantity = parseFloat(quantity);
@@ -46,18 +46,18 @@ export default function NewTransactionPage() {
          // Simula a chamada para a API de criação de transação
          const response = await fakeApi.createTransaction(transactionData);
          setMessage({
-            text: response.message || 'Transação registrada com sucesso!',
-            type: 'success',
+            text: response.message || "Transação registrada com sucesso!",
+            type: "success",
          });
 
          // Limpar formulário após o sucesso
-         setAsset('');
-         setQuantity('');
-         setPrice('');
-         setValue('');
-         setDate('');
+         setAsset("");
+         setQuantity("");
+         setPrice("");
+         setValue("");
+         setDate("");
       } catch (error) {
-         setMessage({ text: 'Erro ao registrar a transação.', type: 'error' });
+         setMessage({ text: "Erro ao registrar a transação.", type: "error" });
       }
    };
 
@@ -81,15 +81,15 @@ export default function NewTransactionPage() {
                      Tipo de Operação
                   </label>
                   <div className="flex p-1 space-x-1 bg-gray-100 dark:bg-[#09090B] rounded-lg border border-gray-200 dark:border-[#27272A]">
-                     {['Compra', 'Venda', 'Dividendo'].map((op) => (
+                     {["Compra", "Venda", "Dividendo"].map((op) => (
                         <button
                            key={op}
                            type="button"
                            onClick={() => setType(op)}
                            className={`flex-1 py-2.5 text-sm font-semibold rounded-md transition-all ${
                               type === op
-                                 ? 'bg-white dark:bg-[#27272A] text-indigo-600 dark:text-white shadow-sm'
-                                 : 'text-gray-500 dark:text-[#A1A1AA] hover:text-gray-700 dark:hover:text-[#F4F4F5]'
+                                 ? "bg-white dark:bg-[#27272A] text-indigo-600 dark:text-white shadow-sm"
+                                 : "text-gray-500 dark:text-[#A1A1AA] hover:text-gray-700 dark:hover:text-[#F4F4F5]"
                            }`}
                         >
                            {op}
@@ -109,7 +109,7 @@ export default function NewTransactionPage() {
                               id="date"
                               className="text-lg h-10 px-3 py-1 border border-gray-300 dark:border-[#27272A] focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white transition-colors"
                            >
-                              {date ? date.toLocaleDateString() : 'dd/mm/aaaa'}
+                              {date ? date.toLocaleDateString() : "dd/mm/aaaa"}
                            </Button>
                         </PopoverTrigger>
                         <PopoverContent
@@ -142,7 +142,7 @@ export default function NewTransactionPage() {
                         value={asset}
                         onChange={(e) => setAsset(e.target.value)}
                         className={
-                           'text-lg bg-background border border-gray-300 dark:border-[#27272A] rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white transition-colors'
+                           "text-lg bg-background border border-gray-300 dark:border-[#27272A] rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white transition-colors"
                         }
                         required
                      />
@@ -153,7 +153,7 @@ export default function NewTransactionPage() {
                </Field>
 
                {/* Linha 2: Valores Dinâmicos */}
-               {type !== 'Dividendo' ? (
+               {type !== "Dividendo" ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                      <Field>
                         <FieldLabel htmlFor="quantity">Quantidade</FieldLabel>
@@ -164,7 +164,7 @@ export default function NewTransactionPage() {
                            value={quantity}
                            onChange={(e) => setQuantity(e.target.value)}
                            className={
-                              'text-lg bg-background border border-gray-300 dark:border-[#27272A] rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none'
+                              "text-lg bg-background border border-gray-300 dark:border-[#27272A] rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white transition-colors [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                            }
                         />
                      </Field>
@@ -173,7 +173,7 @@ export default function NewTransactionPage() {
                         <FieldLabel htmlFor="price">Preço Unitário</FieldLabel>
                         <InputGroup
                            className={
-                              'text-lg bg-background border border-gray-300 dark:border-[#27272A] rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white transition-colors'
+                              "text-lg bg-background border border-gray-300 dark:border-[#27272A] rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-900 dark:text-white transition-colors"
                            }
                         >
                            <InputGroupAddon>
@@ -187,7 +187,7 @@ export default function NewTransactionPage() {
                               value={price}
                               onChange={(e) => setPrice(e.target.value)}
                               className={
-                                 '[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none  '
+                                 "[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none  "
                               }
                               required
                            />
@@ -229,9 +229,9 @@ export default function NewTransactionPage() {
                {message && (
                   <div
                      className={`p-4 rounded-lg text-sm font-medium border ${
-                        message.type === 'success'
-                           ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800'
-                           : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800'
+                        message.type === "success"
+                           ? "bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border-green-200 dark:border-green-800"
+                           : "bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800"
                      }`}
                   >
                      {message.text}
