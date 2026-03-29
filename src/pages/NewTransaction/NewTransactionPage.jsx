@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { transacaoService } from "../../services/transacaoService";
 import { assetTypeService } from "../../services/assetTypeService";
 import { ativoService } from "../../services/ativoService";
+import { dividendoService } from "../../services/dividendoService";
 
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -29,12 +30,27 @@ import {
    AlertDialogHeader,
    AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+   Select,
+   SelectContent,
+   SelectGroup,
+   SelectItem,
+   SelectLabel,
+   SelectTrigger,
+   SelectValue,
+} from "@/components/ui/select";
 
 const CATEGORIAS = [
-   { id: 1, nome: "Renda Variável" },
-   { id: 2, nome: "Renda Fixa" },
-   { id: 3, nome: "Cripto" },
-   { id: 4, nome: "Internacional" },
+   { id: "1", nome: "Renda Variável" },
+   { id: "2", nome: "Renda Fixa" },
+   { id: "3", nome: "Cripto" },
+   { id: "4", nome: "Internacional" },
+];
+
+const TIPOS = [
+   { key: "compra", label: "Compra", color: "bg-green-600" },
+   { key: "venda", label: "Venda", color: "bg-red-600" },
+   { key: "dividendo", label: "Dividendo", color: "bg-blue-600" },
 ];
 
 export default function NewTransactionPage({ activePortfolioId }) {
@@ -46,7 +62,6 @@ export default function NewTransactionPage({ activePortfolioId }) {
    const [loading, setLoading] = useState(false);
    const [error, setError] = useState(null);
 
-   // Dados da API
    const [assetTypes, setAssetTypes] = useState([]);
    const [ativos, setAtivos] = useState([]);
 
@@ -55,10 +70,13 @@ export default function NewTransactionPage({ activePortfolioId }) {
    const [assetTypeId, setAssetTypeId] = useState("");
    const [categoriaId, setCategoriaId] = useState("");
 
-   // Campos venda
+   // Campos venda + dividendo
    const [ativoSelecionado, setAtivoSelecionado] = useState("");
 
-   // Campos compartilhados
+   // Campos dividendo
+   const [valorDividendo, setValorDividendo] = useState("");
+
+   // Campos compartilhados compra/venda
    const [quantity, setQuantity] = useState("");
    const [price, setPrice] = useState("");
    const [date, setDate] = useState(null);
@@ -70,7 +88,6 @@ export default function NewTransactionPage({ activePortfolioId }) {
            })
          : null;
 
-   // Busca tipos de ativo da API
    useEffect(() => {
       assetTypeService
          .listar()
@@ -78,9 +95,8 @@ export default function NewTransactionPage({ activePortfolioId }) {
          .catch(() => setAssetTypes([]));
    }, []);
 
-   // Busca ativos da carteira quando muda para venda
    useEffect(() => {
-      if (type === "venda" && activePortfolioId) {
+      if ((type === "venda" || type === "dividendo") && activePortfolioId) {
          ativoService
             .listarPorCarteira(activePortfolioId)
             .then(setAtivos)
@@ -93,6 +109,7 @@ export default function NewTransactionPage({ activePortfolioId }) {
       setAssetTypeId("");
       setCategoriaId("");
       setAtivoSelecionado("");
+      setValorDividendo("");
       setQuantity("");
       setPrice("");
       setDate(null);
@@ -118,12 +135,21 @@ export default function NewTransactionPage({ activePortfolioId }) {
                valor: parseFloat(price),
                data: dataFormatada,
             });
-         } else {
+         } else if (type === "venda") {
             await transacaoService.vender(activePortfolioId, ativoSelecionado, {
                quantidade: parseFloat(quantity),
                valor: parseFloat(price),
                data: dataFormatada,
             });
+         } else if (type === "dividendo") {
+            await dividendoService.registrar(
+               activePortfolioId,
+               ativoSelecionado,
+               {
+                  valor: parseFloat(valorDividendo),
+                  data: dataFormatada,
+               },
+            );
          }
 
          setShowSuccess(true);
@@ -134,19 +160,20 @@ export default function NewTransactionPage({ activePortfolioId }) {
       }
    };
 
+   const currentTipo = TIPOS.find((t) => t.key === type);
+
    return (
       <div className="max-w-3xl mx-auto space-y-6">
-         {/* Modal de sucesso */}
          <AlertDialog open={showSuccess}>
             <AlertDialogContent className="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A]">
                <AlertDialogHeader>
                   <AlertDialogTitle className="text-gray-900 dark:text-[#F4F4F5]">
-                     {type === "compra"
-                        ? "✅ Compra registrada!"
-                        : "✅ Venda registrada!"}
+                     {type === "compra" && "✅ Compra registrada!"}
+                     {type === "venda" && "✅ Venda registrada!"}
+                     {type === "dividendo" && "✅ Dividendo registrado!"}
                   </AlertDialogTitle>
                   <AlertDialogDescription className="text-gray-500 dark:text-[#A1A1AA]">
-                     Transação registrada com sucesso. O que deseja fazer agora?
+                     Operação registrada com sucesso. O que deseja fazer agora?
                   </AlertDialogDescription>
                </AlertDialogHeader>
                <AlertDialogFooter className="flex gap-2">
@@ -174,7 +201,7 @@ export default function NewTransactionPage({ activePortfolioId }) {
                Nova Transação
             </h2>
             <p className="text-sm text-gray-500 dark:text-[#A1A1AA] mt-1">
-               Registre suas compras e vendas na carteira.
+               Registre suas compras, vendas e dividendos na carteira.
             </p>
          </div>
 
@@ -186,37 +213,34 @@ export default function NewTransactionPage({ activePortfolioId }) {
                      Tipo de Operação
                   </label>
                   <div className="flex p-1 space-x-1 bg-gray-100 dark:bg-[#09090B] rounded-lg border border-gray-200 dark:border-[#27272A]">
-                     {["compra", "venda"].map((op) => (
+                     {TIPOS.map((op) => (
                         <button
-                           key={op}
+                           key={op.key}
                            type="button"
                            onClick={() => {
-                              setType(op);
+                              setType(op.key);
                               resetForm();
                            }}
-                           className={`flex-1 py-2.5 text-sm font-semibold rounded-md transition-all capitalize ${
-                              type === op
-                                 ? op === "compra"
-                                    ? "bg-green-600 text-white shadow-sm"
-                                    : "bg-red-600 text-white shadow-sm"
+                           className={`flex-1 py-2.5 text-sm font-semibold rounded-md transition-all ${
+                              type === op.key
+                                 ? `${op.color} text-white shadow-sm`
                                  : "text-gray-500 dark:text-[#A1A1AA] hover:text-gray-700 dark:hover:text-[#F4F4F5]"
                            }`}
                         >
-                           {op.charAt(0).toUpperCase() + op.slice(1)}
+                           {op.label}
                         </button>
                      ))}
                   </div>
                </div>
 
-               {/* Data + Ativo/Seleção */}
-               <Field className="grid grid-cols-1 md:grid-cols-2 gap-6">
+               {/* Data + Ativo */}
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Field className="w-full">
                      <FieldLabel>Data da Operação</FieldLabel>
                      <Popover open={open} onOpenChange={setOpen}>
                         <PopoverTrigger asChild>
                            <Button
                               variant="outline"
-                              id="date"
                               className="w-full text-left h-10 px-3 border border-gray-300 dark:border-[#27272A] text-gray-900 dark:text-white"
                            >
                               {date
@@ -243,11 +267,11 @@ export default function NewTransactionPage({ activePortfolioId }) {
                      </Popover>
                   </Field>
 
-                  {/* Compra: digita o nome | Venda: select dos ativos */}
                   <Field>
                      <FieldLabel>
                         {type === "compra" ? "Nome do Ativo" : "Ativo"}
                      </FieldLabel>
+
                      {type === "compra" ? (
                         <>
                            <Input
@@ -263,41 +287,66 @@ export default function NewTransactionPage({ activePortfolioId }) {
                            </FieldDescription>
                         </>
                      ) : (
-                        <select
+                        // 👇 Select shadcn para ativo (venda e dividendo)
+                        <Select
                            value={ativoSelecionado}
-                           onChange={(e) => setAtivoSelecionado(e.target.value)}
+                           onValueChange={setAtivoSelecionado}
                            required
-                           className="w-full px-4 py-2.5 text-gray-900 dark:text-[#F4F4F5] bg-white dark:bg-[#09090B] border border-gray-300 dark:border-[#27272A] rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-[#A1A1AA] transition-colors"
                         >
-                           <option value="">Selecione o ativo</option>
-                           {ativos.map((a) => (
-                              <option key={a.id} value={a.id}>
-                                 {a.nome} — {a.quantidade} disponíveis
-                              </option>
-                           ))}
-                        </select>
+                           <SelectTrigger className="w-full h-10 bg-white dark:bg-[#09090B] border-gray-300 dark:border-[#27272A] text-gray-900 dark:text-[#F4F4F5]">
+                              <SelectValue placeholder="Selecione o ativo" />
+                           </SelectTrigger>
+                           <SelectContent className="bg-white dark:bg-popover border border-border shadow-xl">
+                              <SelectGroup>
+                                 <SelectLabel>Ativos da carteira</SelectLabel>
+                                 {ativos.length === 0 ? (
+                                    <SelectItem value="empty" disabled>
+                                       Nenhum ativo encontrado
+                                    </SelectItem>
+                                 ) : (
+                                    ativos.map((a) => (
+                                       <SelectItem
+                                          key={a.id}
+                                          value={String(a.id)}
+                                       >
+                                          {a.nome}
+                                          {type === "venda" &&
+                                             ` — ${a.quantidade} disponíveis`}
+                                       </SelectItem>
+                                    ))
+                                 )}
+                              </SelectGroup>
+                           </SelectContent>
+                        </Select>
                      )}
                   </Field>
-               </Field>
+               </div>
 
-               {/* Campos exclusivos da compra */}
+               {/* Campos exclusivos da COMPRA */}
                {type === "compra" && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                      <Field>
                         <FieldLabel>Tipo de Ativo</FieldLabel>
-                        <select
+                        {/* 👇 Select shadcn para tipo de ativo */}
+                        <Select
                            value={assetTypeId}
-                           onChange={(e) => setAssetTypeId(e.target.value)}
+                           onValueChange={setAssetTypeId}
                            required
-                           className="w-full px-4 py-2.5 text-gray-900 dark:text-[#F4F4F5] bg-white dark:bg-[#09090B] border border-gray-300 dark:border-[#27272A] rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-[#A1A1AA] transition-colors"
                         >
-                           <option value="">Selecione o tipo</option>
-                           {assetTypes.map((t) => (
-                              <option key={t.id} value={t.id}>
-                                 {t.nome}
-                              </option>
-                           ))}
-                        </select>
+                           <SelectTrigger className="w-full h-10 bg-white dark:bg-[#09090B] border-gray-300 dark:border-[#27272A] text-gray-900 dark:text-[#F4F4F5]">
+                              <SelectValue placeholder="Selecione o tipo" />
+                           </SelectTrigger>
+                           <SelectContent className="bg-white dark:bg-popover border border-border shadow-xl">
+                              <SelectGroup>
+                                 <SelectLabel>Tipos disponíveis</SelectLabel>
+                                 {assetTypes.map((t) => (
+                                    <SelectItem key={t.id} value={String(t.id)}>
+                                       {t.nome}
+                                    </SelectItem>
+                                 ))}
+                              </SelectGroup>
+                           </SelectContent>
+                        </Select>
                      </Field>
 
                      <Field>
@@ -307,40 +356,74 @@ export default function NewTransactionPage({ activePortfolioId }) {
                               (opcional)
                            </span>
                         </FieldLabel>
-                        <select
+                        {/* 👇 Select shadcn para categoria */}
+                        <Select
                            value={categoriaId}
-                           onChange={(e) => setCategoriaId(e.target.value)}
-                           className="w-full px-4 py-2.5 text-gray-900 dark:text-[#F4F4F5] bg-white dark:bg-[#09090B] border border-gray-300 dark:border-[#27272A] rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-[#A1A1AA] transition-colors"
+                           onValueChange={setCategoriaId}
                         >
-                           <option value="">Sem categoria</option>
-                           {CATEGORIAS.map((c) => (
-                              <option key={c.id} value={c.id}>
-                                 {c.nome}
-                              </option>
-                           ))}
-                        </select>
+                           <SelectTrigger className="w-full h-10 bg-white dark:bg-[#09090B] border-gray-300 dark:border-[#27272A] text-gray-900 dark:text-[#F4F4F5]">
+                              <SelectValue placeholder="Sem categoria" />
+                           </SelectTrigger>
+                           <SelectContent className="bg-white dark:bg-popover border border-border shadow-xl">
+                              <SelectGroup>
+                                 <SelectLabel>Categorias</SelectLabel>
+                                 {CATEGORIAS.map((c) => (
+                                    <SelectItem key={c.id} value={c.id}>
+                                       {c.nome}
+                                    </SelectItem>
+                                 ))}
+                              </SelectGroup>
+                           </SelectContent>
+                        </Select>
                      </Field>
                   </div>
                )}
 
-               {/* Quantidade e preço */}
-               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Field>
-                     <FieldLabel>Quantidade</FieldLabel>
-                     <Input
-                        type="number"
-                        step="any"
-                        min="0"
-                        placeholder="Ex: 100"
-                        value={quantity}
-                        onChange={(e) => setQuantity(e.target.value)}
-                        required
-                        className="bg-background border border-gray-300 dark:border-[#27272A] text-gray-900 dark:text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                     />
-                  </Field>
+               {/* Campos COMPRA e VENDA */}
+               {type !== "dividendo" && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                     <Field>
+                        <FieldLabel>Quantidade</FieldLabel>
+                        <Input
+                           type="number"
+                           step="any"
+                           min="0"
+                           placeholder="Ex: 100"
+                           value={quantity}
+                           onChange={(e) => setQuantity(e.target.value)}
+                           required
+                           className="bg-background border border-gray-300 dark:border-[#27272A] text-gray-900 dark:text-white [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                        />
+                     </Field>
 
+                     <Field>
+                        <FieldLabel>Preço Unitário</FieldLabel>
+                        <InputGroup className="border border-gray-300 dark:border-[#27272A] rounded-lg">
+                           <InputGroupAddon>
+                              <InputGroupText>R$</InputGroupText>
+                           </InputGroupAddon>
+                           <InputGroupInput
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              placeholder="0.00"
+                              value={price}
+                              onChange={(e) => setPrice(e.target.value)}
+                              required
+                              className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                           />
+                           <InputGroupAddon align="inline-end">
+                              <InputGroupText>BRL</InputGroupText>
+                           </InputGroupAddon>
+                        </InputGroup>
+                     </Field>
+                  </div>
+               )}
+
+               {/* Campo exclusivo DIVIDENDO */}
+               {type === "dividendo" && (
                   <Field>
-                     <FieldLabel>Preço Unitário</FieldLabel>
+                     <FieldLabel>Valor Total Recebido</FieldLabel>
                      <InputGroup className="border border-gray-300 dark:border-[#27272A] rounded-lg">
                         <InputGroupAddon>
                            <InputGroupText>R$</InputGroupText>
@@ -350,8 +433,8 @@ export default function NewTransactionPage({ activePortfolioId }) {
                            step="0.01"
                            min="0"
                            placeholder="0.00"
-                           value={price}
-                           onChange={(e) => setPrice(e.target.value)}
+                           value={valorDividendo}
+                           onChange={(e) => setValorDividendo(e.target.value)}
                            required
                            className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         />
@@ -360,10 +443,10 @@ export default function NewTransactionPage({ activePortfolioId }) {
                         </InputGroupAddon>
                      </InputGroup>
                   </Field>
-               </div>
+               )}
 
                {/* Resumo valor total */}
-               {valorTotal && (
+               {type !== "dividendo" && valorTotal && (
                   <div
                      className={`p-4 rounded-lg border ${
                         type === "compra"
@@ -398,18 +481,12 @@ export default function NewTransactionPage({ activePortfolioId }) {
                   <button
                      type="submit"
                      disabled={loading}
-                     className={`w-full flex justify-center items-center font-semibold py-3 px-4 rounded-lg transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed ${
-                        type === "compra"
-                           ? "bg-green-600 hover:bg-green-700 text-white"
-                           : "bg-red-600 hover:bg-red-700 text-white"
-                     }`}
+                     className={`w-full flex justify-center items-center font-semibold py-3 px-4 rounded-lg transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed ${currentTipo.color} text-white hover:opacity-90`}
                   >
                      <Plus className="mr-2 h-5 w-5" />
                      {loading
                         ? "Registrando..."
-                        : type === "compra"
-                          ? "Registrar Compra"
-                          : "Registrar Venda"}
+                        : `Registrar ${currentTipo.label}`}
                   </button>
                </div>
             </form>
