@@ -92,7 +92,11 @@ export const Layout = () => {
                      />
                      <Route
                         path="new-transaction"
-                        element={<NewTransactionPage />}
+                        element={
+                           <NewTransactionPage
+                              activePortfolioId={activePortfolio}
+                           />
+                        }
                      />
                      <Route
                         path="reports"
