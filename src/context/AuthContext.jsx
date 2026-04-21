@@ -52,6 +52,15 @@ export function AuthProvider({ children }) {
       setPortfolios([]);
    };
 
+   const register = async (name, email, password) => {
+      try {
+         await authService.register(name, email, password);
+         return true;
+      } catch {
+         return false;
+      }
+   };
+
    return (
       <AuthContext.Provider
          value={{
@@ -60,6 +69,7 @@ export function AuthProvider({ children }) {
             login,
             logout,
             loading,
+            register,
             isAuthenticated: !!user,
          }}
       >
