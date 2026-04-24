@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { transacaoService } from "../../services/transacaoService";
-import { assetTypeService } from "../../services/assetTypeService";
 import { ativoService } from "../../services/ativoService";
 import { dividendoService } from "../../services/dividendoService";
 
-import { Plus } from "lucide-react";
+import { Plus, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Field, FieldLabel, FieldDescription } from "@/components/ui/field";
+import { Field, FieldLabel } from "@/components/ui/field";
 import { Calendar } from "@/components/ui/calendar";
 import {
    Popover,
@@ -40,13 +39,6 @@ import {
    SelectValue,
 } from "@/components/ui/select";
 
-const CATEGORIAS = [
-   { id: "1", nome: "Renda Variável" },
-   { id: "2", nome: "Renda Fixa" },
-   { id: "3", nome: "Cripto" },
-   { id: "4", nome: "Internacional" },
-];
-
 const TIPOS = [
    { key: "compra", label: "Compra", color: "bg-green-600" },
    { key: "venda", label: "Venda", color: "bg-red-600" },
@@ -57,29 +49,28 @@ export default function NewTransactionPage({ activePortfolioId }) {
    const navigate = useNavigate();
 
    const [type, setType] = useState("compra");
-   const [open, setOpen] = useState(false);
+   const [openCal, setOpenCal] = useState(false);
    const [showSuccess, setShowSuccess] = useState(false);
    const [loading, setLoading] = useState(false);
    const [error, setError] = useState(null);
 
-   const [assetTypes, setAssetTypes] = useState([]);
-   const [ativos, setAtivos] = useState([]);
+   // Catálogo global (compra)
+   const [busca, setBusca] = useState("");
+   const [catalogo, setCatalogo] = useState([]);
+   const [buscando, setBuscando] = useState(false);
+   const [ativoCompra, setAtivoCompra] = useState(null); // { id, ticker, nome }
 
-   // Campos compra
-   const [nomeAtivo, setNomeAtivo] = useState("");
-   const [assetTypeId, setAssetTypeId] = useState("");
-   const [categoriaId, setCategoriaId] = useState("");
-
-   // Campos venda + dividendo
+   // Posições da carteira (venda + dividendo)
+   const [posicoes, setPosicoes] = useState([]);
    const [ativoSelecionado, setAtivoSelecionado] = useState("");
-
-   // Campos dividendo
-   const [valorDividendo, setValorDividendo] = useState("");
 
    // Campos compartilhados compra/venda
    const [quantity, setQuantity] = useState("");
    const [price, setPrice] = useState("");
    const [date, setDate] = useState(null);
+
+   // Campo dividendo
+   const [valorDividendo, setValorDividendo] = useState("");
 
    const valorTotal =
       quantity && price
@@ -88,31 +79,49 @@ export default function NewTransactionPage({ activePortfolioId }) {
            })
          : null;
 
+   // Debounce busca no catálogo
    useEffect(() => {
-      assetTypeService
-         .listar()
-         .then(setAssetTypes)
-         .catch(() => setAssetTypes([]));
-   }, []);
+      if (type !== "compra") return;
+      if (!busca.trim() || busca.length < 2) {
+         setCatalogo([]);
+         return;
+      }
 
+      setBuscando(true);
+      const timer = setTimeout(async () => {
+         try {
+            const resultado = await ativoService.listarCatalogo(busca.trim());
+            // API pode retornar objeto único ou array
+            setCatalogo(Array.isArray(resultado) ? resultado : [resultado]);
+         } catch {
+            setCatalogo([]);
+         } finally {
+            setBuscando(false);
+         }
+      }, 400);
+
+      return () => clearTimeout(timer);
+   }, [busca, type]);
+
+   // Carrega posições quando muda para venda/dividendo
    useEffect(() => {
       if ((type === "venda" || type === "dividendo") && activePortfolioId) {
          ativoService
             .listarPorCarteira(activePortfolioId)
-            .then(setAtivos)
-            .catch(() => setAtivos([]));
+            .then(setPosicoes)
+            .catch(() => setPosicoes([]));
       }
    }, [type, activePortfolioId]);
 
    const resetForm = () => {
-      setNomeAtivo("");
-      setAssetTypeId("");
-      setCategoriaId("");
+      setBusca("");
+      setCatalogo([]);
+      setAtivoCompra(null);
       setAtivoSelecionado("");
-      setValorDividendo("");
       setQuantity("");
       setPrice("");
       setDate(null);
+      setValorDividendo("");
       setError(null);
    };
 
@@ -127,28 +136,28 @@ export default function NewTransactionPage({ activePortfolioId }) {
             : new Date().toISOString().split("T")[0];
 
          if (type === "compra") {
+            if (!ativoCompra) {
+               setError("Selecione um ativo da lista.");
+               return;
+            }
             await transacaoService.comprar(activePortfolioId, {
-               nome: nomeAtivo.toUpperCase().trim(),
-               asset_type_id: parseInt(assetTypeId),
-               category_id: categoriaId ? parseInt(categoriaId) : null,
+               asset_id: ativoCompra.id,
                quantidade: parseFloat(quantity),
-               valor: parseFloat(price),
+               preco_unitario: parseFloat(price),
                data: dataFormatada,
             });
          } else if (type === "venda") {
-            await transacaoService.vender(activePortfolioId, ativoSelecionado, {
+            await transacaoService.vender(activePortfolioId, {
+               asset_id: parseInt(ativoSelecionado),
                quantidade: parseFloat(quantity),
-               valor: parseFloat(price),
+               preco_unitario: parseFloat(price),
                data: dataFormatada,
             });
          } else if (type === "dividendo") {
             await dividendoService.registrar(
                activePortfolioId,
-               ativoSelecionado,
-               {
-                  valor: parseFloat(valorDividendo),
-                  data: dataFormatada,
-               },
+               parseInt(ativoSelecionado),
+               { valor: parseFloat(valorDividendo), data: dataFormatada },
             );
          }
 
@@ -164,6 +173,7 @@ export default function NewTransactionPage({ activePortfolioId }) {
 
    return (
       <div className="max-w-3xl mx-auto space-y-6">
+         {/* Modal de sucesso */}
          <AlertDialog open={showSuccess}>
             <AlertDialogContent className="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A]">
                <AlertDialogHeader>
@@ -173,7 +183,7 @@ export default function NewTransactionPage({ activePortfolioId }) {
                      {type === "dividendo" && "✅ Dividendo registrado!"}
                   </AlertDialogTitle>
                   <AlertDialogDescription className="text-gray-500 dark:text-[#A1A1AA]">
-                     Operação registrada com sucesso. O que deseja fazer agora?
+                     Operação registrada com sucesso.
                   </AlertDialogDescription>
                </AlertDialogHeader>
                <AlertDialogFooter className="flex gap-2">
@@ -188,7 +198,7 @@ export default function NewTransactionPage({ activePortfolioId }) {
                   </AlertDialogAction>
                   <AlertDialogAction
                      onClick={() => navigate("/portfolio")}
-                     className="bg-gray-900 text-white dark:bg-[#F4F4F5] dark:text-[#09090B] hover:bg-gray-800 dark:hover:bg-[#e4e4e7]"
+                     className="bg-gray-900 text-white dark:bg-[#F4F4F5] dark:text-[#09090B] hover:bg-gray-800"
                   >
                      Ver carteira
                   </AlertDialogAction>
@@ -235,9 +245,10 @@ export default function NewTransactionPage({ activePortfolioId }) {
 
                {/* Data + Ativo */}
                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Data */}
                   <Field className="w-full">
                      <FieldLabel>Data da Operação</FieldLabel>
-                     <Popover open={open} onOpenChange={setOpen}>
+                     <Popover open={openCal} onOpenChange={setOpenCal}>
                         <PopoverTrigger asChild>
                            <Button
                               variant="outline"
@@ -267,27 +278,89 @@ export default function NewTransactionPage({ activePortfolioId }) {
                      </Popover>
                   </Field>
 
+                  {/* Ativo — busca no catálogo (compra) ou select das posições (venda/dividendo) */}
                   <Field>
                      <FieldLabel>
-                        {type === "compra" ? "Nome do Ativo" : "Ativo"}
+                        {type === "compra" ? "Buscar Ativo" : "Ativo"}
                      </FieldLabel>
 
                      {type === "compra" ? (
-                        <>
-                           <Input
-                              type="text"
-                              placeholder="Ex: PETR4, BTC, KNRI11"
-                              value={nomeAtivo}
-                              onChange={(e) => setNomeAtivo(e.target.value)}
-                              required
-                              className="bg-background border border-gray-300 dark:border-[#27272A] text-gray-900 dark:text-white"
-                           />
-                           <FieldDescription>
-                              Nome ou ticker do ativo.
-                           </FieldDescription>
-                        </>
+                        <div className="relative">
+                           {/* Ativo já selecionado */}
+                           {ativoCompra ? (
+                              <div className="flex items-center justify-between px-4 py-2.5 border border-gray-300 dark:border-[#27272A] rounded-lg bg-gray-50 dark:bg-[#09090B]">
+                                 <div>
+                                    <span className="font-bold text-gray-900 dark:text-white">
+                                       {ativoCompra.ticker}
+                                    </span>
+                                    <span className="text-sm text-gray-500 dark:text-[#A1A1AA] ml-2">
+                                       {ativoCompra.nome}
+                                    </span>
+                                 </div>
+                                 <button
+                                    type="button"
+                                    onClick={() => {
+                                       setAtivoCompra(null);
+                                       setBusca("");
+                                    }}
+                                    className="text-gray-400 hover:text-gray-700 dark:hover:text-white"
+                                 >
+                                    <X className="h-4 w-4" />
+                                 </button>
+                              </div>
+                           ) : (
+                              <>
+                                 <div className="relative">
+                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                                    <Input
+                                       type="text"
+                                       placeholder="Digite o ticker ou nome... Ex: PETR4"
+                                       value={busca}
+                                       onChange={(e) =>
+                                          setBusca(e.target.value.toUpperCase())
+                                       }
+                                       className="pl-9 bg-background border border-gray-300 dark:border-[#27272A] text-gray-900 dark:text-white"
+                                    />
+                                 </div>
+
+                                 {/* Dropdown de resultados */}
+                                 {(buscando || catalogo.length > 0) && (
+                                    <div className="absolute z-10 top-full mt-1 w-full bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] rounded-lg shadow-xl max-h-48 overflow-y-auto">
+                                       {buscando ? (
+                                          <div className="px-4 py-3 text-sm text-gray-500 dark:text-[#A1A1AA]">
+                                             Buscando...
+                                          </div>
+                                       ) : (
+                                          catalogo.map((a) => (
+                                             <button
+                                                key={a.id}
+                                                type="button"
+                                                onClick={() => {
+                                                   setAtivoCompra({
+                                                      id: a.id,
+                                                      ticker: a.ticker,
+                                                      nome: a.nome,
+                                                   });
+                                                   setBusca("");
+                                                   setCatalogo([]);
+                                                }}
+                                                className="w-full text-left px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-[#27272A] transition-colors"
+                                             >
+                                                <span className="font-bold text-gray-900 dark:text-white text-sm">
+                                                   {a.ticker}
+                                                </span>
+                                                <span className="text-gray-500 dark:text-[#A1A1AA] text-sm ml-2">
+                                                   {a.nome}
+                                                </span>
+                                             </button>
+                                          ))
+                                       )}
+                                    </div>
+                                 )}
+                              </>
+                           )}
+                        </div>
                      ) : (
-                        // 👇 Select shadcn para ativo (venda e dividendo)
                         <Select
                            value={ativoSelecionado}
                            onValueChange={setAtivoSelecionado}
@@ -299,19 +372,19 @@ export default function NewTransactionPage({ activePortfolioId }) {
                            <SelectContent className="bg-white dark:bg-popover border border-border shadow-xl">
                               <SelectGroup>
                                  <SelectLabel>Ativos da carteira</SelectLabel>
-                                 {ativos.length === 0 ? (
+                                 {posicoes.length === 0 ? (
                                     <SelectItem value="empty" disabled>
                                        Nenhum ativo encontrado
                                     </SelectItem>
                                  ) : (
-                                    ativos.map((a) => (
+                                    posicoes.map((p) => (
                                        <SelectItem
-                                          key={a.id}
-                                          value={String(a.id)}
+                                          key={p.asset_id}
+                                          value={String(p.asset_id)}
                                        >
-                                          {a.nome}
+                                          {p.ticker} — {p.nome}
                                           {type === "venda" &&
-                                             ` — ${a.quantidade} disponíveis`}
+                                             ` (${p.quantidade} disponíveis)`}
                                        </SelectItem>
                                     ))
                                  )}
@@ -322,64 +395,7 @@ export default function NewTransactionPage({ activePortfolioId }) {
                   </Field>
                </div>
 
-               {/* Campos exclusivos da COMPRA */}
-               {type === "compra" && (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                     <Field>
-                        <FieldLabel>Tipo de Ativo</FieldLabel>
-                        {/* 👇 Select shadcn para tipo de ativo */}
-                        <Select
-                           value={assetTypeId}
-                           onValueChange={setAssetTypeId}
-                           required
-                        >
-                           <SelectTrigger className="w-full h-10 bg-white dark:bg-[#09090B] border-gray-300 dark:border-[#27272A] text-gray-900 dark:text-[#F4F4F5]">
-                              <SelectValue placeholder="Selecione o tipo" />
-                           </SelectTrigger>
-                           <SelectContent className="bg-white dark:bg-popover border border-border shadow-xl">
-                              <SelectGroup>
-                                 <SelectLabel>Tipos disponíveis</SelectLabel>
-                                 {assetTypes.map((t) => (
-                                    <SelectItem key={t.id} value={String(t.id)}>
-                                       {t.nome}
-                                    </SelectItem>
-                                 ))}
-                              </SelectGroup>
-                           </SelectContent>
-                        </Select>
-                     </Field>
-
-                     <Field>
-                        <FieldLabel>
-                           Categoria{" "}
-                           <span className="text-gray-400 font-normal">
-                              (opcional)
-                           </span>
-                        </FieldLabel>
-                        {/* 👇 Select shadcn para categoria */}
-                        <Select
-                           value={categoriaId}
-                           onValueChange={setCategoriaId}
-                        >
-                           <SelectTrigger className="w-full h-10 bg-white dark:bg-[#09090B] border-gray-300 dark:border-[#27272A] text-gray-900 dark:text-[#F4F4F5]">
-                              <SelectValue placeholder="Sem categoria" />
-                           </SelectTrigger>
-                           <SelectContent className="bg-white dark:bg-popover border border-border shadow-xl">
-                              <SelectGroup>
-                                 <SelectLabel>Categorias</SelectLabel>
-                                 {CATEGORIAS.map((c) => (
-                                    <SelectItem key={c.id} value={c.id}>
-                                       {c.nome}
-                                    </SelectItem>
-                                 ))}
-                              </SelectGroup>
-                           </SelectContent>
-                        </Select>
-                     </Field>
-                  </div>
-               )}
-
-               {/* Campos COMPRA e VENDA */}
+               {/* Quantidade e Preço — só compra e venda */}
                {type !== "dividendo" && (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                      <Field>
@@ -420,7 +436,7 @@ export default function NewTransactionPage({ activePortfolioId }) {
                   </div>
                )}
 
-               {/* Campo exclusivo DIVIDENDO */}
+               {/* Valor do dividendo */}
                {type === "dividendo" && (
                   <Field>
                      <FieldLabel>Valor Total Recebido</FieldLabel>
@@ -480,7 +496,7 @@ export default function NewTransactionPage({ activePortfolioId }) {
                <div className="pt-2">
                   <button
                      type="submit"
-                     disabled={loading}
+                     disabled={loading || (type === "compra" && !ativoCompra)}
                      className={`w-full flex justify-center items-center font-semibold py-3 px-4 rounded-lg transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed ${currentTipo.color} text-white hover:opacity-90`}
                   >
                      <Plus className="mr-2 h-5 w-5" />

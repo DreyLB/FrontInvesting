@@ -8,14 +8,11 @@ export const transacaoService = {
       });
    },
 
-   async vender(carteiraId, ativoId, dados) {
-      return await apiFetch(
-         `/carteiras/${carteiraId}/ativos/${ativoId}/transacoes`,
-         {
-            method: "POST",
-            body: JSON.stringify({ ...dados, tipo: "venda" }),
-         },
-      );
+   async vender(carteiraId, dados) {
+      return await apiFetch(`/carteiras/${carteiraId}/vender`, {
+         method: "POST",
+         body: JSON.stringify(dados),
+      });
    },
 
    async listarPorCarteira(carteiraId) {
