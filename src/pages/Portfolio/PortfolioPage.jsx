@@ -61,7 +61,7 @@ export default function PortfolioPage({ activePortfolioId }) {
 
    const calcularPL = (ativo) => {
       const custo = ativo.quantidade * ativo.preco_medio;
-      const valor = ativo.quantidade * ativo.preco;
+      const valor = ativo.valor_total; // valor_total já é quantidade * preço atual
       return valor - custo;
    };
 
@@ -146,25 +146,46 @@ export default function PortfolioPage({ activePortfolioId }) {
                                     className="hover:bg-gray-50 dark:hover:bg-[#27272A]/50 transition-colors"
                                  >
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-[#F4F4F5]">
-                                       {ativo.nome}
+                                       {ativo.ticker}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-[#A1A1AA]">
                                        {ativo.tipo_nome}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-[#A1A1AA]">
-                                       {ativo.quantidade}
+                                       {Number(ativo.quantidade).toLocaleString(
+                                          "pt-BR",
+                                          {
+                                             minimumFractionDigits: 2,
+                                             maximumFractionDigits: 2,
+                                          },
+                                       )}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-[#A1A1AA]">
-                                       R$ {Number(ativo.preco_medio).toFixed(2)}
+                                       R${" "}
+                                       {Number(
+                                          ativo.preco_medio,
+                                       ).toLocaleString("pt-BR", {
+                                          minimumFractionDigits: 2,
+                                          maximumFractionDigits: 2,
+                                       })}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-[#F4F4F5]">
-                                       R$ {Number(ativo.preco).toFixed(2)}
+                                       R${" "}
+                                       {Number(
+                                          ativo.valor_total,
+                                       ).toLocaleString("pt-BR", {
+                                          minimumFractionDigits: 2,
+                                          maximumFractionDigits: 2,
+                                       })}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-[#A1A1AA]">
                                        R${" "}
                                        {(
-                                          ativo.quantidade * ativo.preco
-                                       ).toFixed(2)}
+                                          ativo.quantidade * ativo.preco_medio
+                                       ).toLocaleString("pt-BR", {
+                                          minimumFractionDigits: 2,
+                                          maximumFractionDigits: 2,
+                                       })}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                        <span

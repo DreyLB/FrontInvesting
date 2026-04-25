@@ -278,22 +278,25 @@ export default function TransactionsPage({ activePortfolioId }) {
                                  </span>
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900 dark:text-[#F4F4F5]">
-                                 {t.ativo_nome ?? "—"}
+                                 {t.ticker ?? "—"}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-[#A1A1AA]">
                                  {Number(t.quantidade).toLocaleString("pt-BR")}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-[#A1A1AA]">
                                  R${" "}
-                                 {(
-                                    Number(t.valor) / Number(t.quantidade)
-                                 ).toLocaleString("pt-BR", {
-                                    minimumFractionDigits: 2,
-                                 })}
+                                 {Number(t.preco_unitario).toLocaleString(
+                                    "pt-BR",
+                                    {
+                                       minimumFractionDigits: 2,
+                                    },
+                                 )}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-[#F4F4F5]">
                                  R${" "}
-                                 {Number(t.valor).toLocaleString("pt-BR", {
+                                 {Number(
+                                    t.preco_unitario * t.quantidade,
+                                 ).toLocaleString("pt-BR", {
                                     minimumFractionDigits: 2,
                                  })}
                               </td>
