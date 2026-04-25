@@ -23,6 +23,7 @@ import { useAuth } from "../../context/AuthContext";
 export const Layout = () => {
    const { portfolios } = useAuth();
    const [activePortfolio, setActivePortfolio] = useState(null);
+   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
    useEffect(() => {
       if (portfolios.length > 0 && !activePortfolio) {
@@ -32,7 +33,27 @@ export const Layout = () => {
 
    return (
       <div className="flex flex-col md:flex-row h-screen overflow-hidden bg-gray-100 dark:bg-[#09090B] font-inter">
-         <Sidebar />
+         <Sidebar isOpen={isSidebarOpen} />
+
+         {/* Botão grudado no sidebar */}
+         <button
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className={`
+                        fixed top-1/2 -translate-y-1/2 z-30
+                        transition-all duration-300
+
+                        ${isSidebarOpen ? "left-0" : "left-0"}
+
+                        bg-white dark:bg-[#18181B]
+                        border border-gray-200 dark:border-[#27272A]
+                        shadow-md
+                        rounded-r-md
+                        p-2
+                        hover:bg-gray-100 dark:hover:bg-[#27272A]
+                     `}
+         >
+            {isSidebarOpen ? "◀" : "▶"}
+         </button>
 
          <main className="flex-1 p-8 overflow-y-auto">
             {portfolios.length === 0 ? (

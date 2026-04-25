@@ -2,7 +2,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeProvider";
 import { useNavigate, useLocation } from "react-router-dom";
 
-const Sidebar = () => {
+const Sidebar = ({ isOpen }) => {
    const { logout, user } = useAuth();
    const { isDarkMode, toggleTheme } = useTheme();
    const navigate = useNavigate();
@@ -24,7 +24,19 @@ const Sidebar = () => {
    };
 
    return (
-      <aside className="bg-white dark:bg-[#18181B] md:w-64 p-4 border-r border-gray-200 dark:border-[#27272A] shadow-sm relative flex flex-col h-full shrink-0">
+      <aside
+         className={`
+                  bg-white dark:bg-[#18181B]
+                  md:w-64 p-4
+                  border-r border-gray-200 dark:border-[#27272A]
+                  shadow-sm
+                  fixed md:relative top-0 left-0 h-full z-20 flex flex-col shrink-0
+
+                  transform transition-transform duration-300 ease-in-out
+
+                  ${isOpen ? "translate-x-0" : "-translate-x-full"}
+               `}
+      >
          <button
             onClick={toggleTheme}
             className="absolute top-4 right-4 p-2 rounded-full bg-gray-100 dark:bg-[#27272A] text-gray-800 dark:text-[#F4F4F5] hover:opacity-80 transition-opacity"
