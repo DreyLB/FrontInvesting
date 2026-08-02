@@ -10,8 +10,4 @@ export const ativoService = {
    async listarPorCarteira(carteiraId) {
       return await apiFetch(`/carteiras/${carteiraId}/posicoes`);
    },
-
-   async listarValorTotalCarteira(carteiraId) {
-      return await apiFetch(`/carteiras/${carteiraId}/valorTotal`);
-   },
 };

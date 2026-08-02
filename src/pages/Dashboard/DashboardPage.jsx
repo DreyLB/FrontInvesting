@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { ativoService } from "../../services/ativoService";
+import { dashBoardService } from "../../services/dashBoardService";
 import { fakeApi } from "../../services/fakeApi";
 import PortfolioEvolutionChart from "../../components/charts/PortfolioEvolutionChart";
 import {
@@ -40,7 +40,12 @@ export default function DashboardPage({ activePortfolioId }) {
          const ibovespaData = await fakeApi.getIbovespa();
          const bitcoinData = await fakeApi.getBitcoin();
          const valorTotalResponse =
-            await ativoService.listarValorTotalCarteira(activePortfolioId);
+            await dashBoardService.listarValorTotalCarteira(activePortfolioId);
+
+         const evolucaoCarteira =
+            await dashBoardService.listarEvolucaoCarteira(activePortfolioId);
+
+         console.log("Evolução da Carteira:", evolucaoCarteira);
 
          setValorTotalCarteira(valorTotalResponse?.valorTotal ?? 0);
          setDashboardData(data);
@@ -76,8 +81,6 @@ export default function DashboardPage({ activePortfolioId }) {
          color: chartColors[index % chartColors.length],
       }));
    };
-
-   console.log("Evolução de patrimônio:", dashboardData.portfolioEvolution);
 
    const stocksComposition = getCompositionData("Ações");
    const fiisComposition = getCompositionData("FIIs");
