@@ -27,7 +27,7 @@ const Sidebar = ({ isOpen }) => {
       <aside
          className={`
                   bg-white dark:bg-[#18181B]
-                  md:w-64 p-4
+                  w-64 p-4
                   border-r border-gray-200 dark:border-[#27272A]
                   shadow-sm
                   fixed md:relative top-0 left-0 h-full z-20 flex flex-col shrink-0
