@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react';
-import { fakeApi } from '../../services/fakeApi';
-import PortfolioEvolutionChart from '../../components/charts/PortfolioEvolutionChart';
+import { useEffect, useState } from "react";
+import { ativoService } from "../../services/ativoService";
+import { fakeApi } from "../../services/fakeApi";
+import PortfolioEvolutionChart from "../../components/charts/PortfolioEvolutionChart";
 import {
    PieChart,
    Pie,
@@ -8,7 +9,7 @@ import {
    ResponsiveContainer,
    Tooltip,
    Legend,
-} from 'recharts';
+} from "recharts";
 
 export default function DashboardPage({ activePortfolioId }) {
    const [dashboardData, setDashboardData] = useState(null);
@@ -17,16 +18,17 @@ export default function DashboardPage({ activePortfolioId }) {
    const [ibovespa, setIbovespa] = useState(null);
    const [bitcoin, setBitcoin] = useState(null);
    const [loading, setLoading] = useState(true);
+   const [valorTotalCarteira, setValorTotalCarteira] = useState(null);
 
    // Paleta de cores vibrantes para destacar os gráficos no fundo escuro
    const chartColors = [
-      '#8884d8', // Roxo
-      '#82ca9d', // Verde
-      '#ffc658', // Amarelo
-      '#ff8042', // Laranja
-      '#0088FE', // Azul
-      '#FFBB28', // Dourado
-      '#FF8042', // Coral
+      "#8884d8", // Roxo
+      "#82ca9d", // Verde
+      "#ffc658", // Amarelo
+      "#ff8042", // Laranja
+      "#0088FE", // Azul
+      "#FFBB28", // Dourado
+      "#FF8042", // Coral
    ];
 
    useEffect(() => {
@@ -37,17 +39,10 @@ export default function DashboardPage({ activePortfolioId }) {
          const alertsData = await fakeApi.getAlerts(activePortfolioId);
          const ibovespaData = await fakeApi.getIbovespa();
          const bitcoinData = await fakeApi.getBitcoin();
+         const valorTotalResponse =
+            await ativoService.listarValorTotalCarteira(activePortfolioId);
 
-         // Adaptando as cores da composição principal que vêm da API
-         if (data && data.portfolioComposition) {
-            data.portfolioComposition = data.portfolioComposition.map(
-               (item, idx) => ({
-                  ...item,
-                  color: chartColors[idx % chartColors.length],
-               }),
-            );
-         }
-
+         setValorTotalCarteira(valorTotalResponse?.valorTotal ?? 0);
          setDashboardData(data);
          setPortfolioData(portfolio);
          setAlerts(alertsData);
@@ -82,8 +77,10 @@ export default function DashboardPage({ activePortfolioId }) {
       }));
    };
 
-   const stocksComposition = getCompositionData('Ações');
-   const fiisComposition = getCompositionData('FIIs');
+   console.log("Evolução de patrimônio:", dashboardData.portfolioEvolution);
+
+   const stocksComposition = getCompositionData("Ações");
+   const fiisComposition = getCompositionData("FIIs");
 
    return (
       <div className="space-y-8">
@@ -99,12 +96,12 @@ export default function DashboardPage({ activePortfolioId }) {
                </h3>
                <div className="text-right">
                   <p className="text-3xl font-bold text-gray-900 dark:text-[#F4F4F5]">
-                     {ibovespa.value.toLocaleString('pt-BR')}
+                     {ibovespa.value.toLocaleString("pt-BR")}
                   </p>
                   <span
-                     className={`text-sm font-semibold ${ibovespa.change >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}
+                     className={`text-sm font-semibold ${ibovespa.change >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
                   >
-                     {ibovespa.change >= 0 ? '+' : ''}
+                     {ibovespa.change >= 0 ? "+" : ""}
                      {ibovespa.change.toFixed(2)}%
                   </span>
                </div>
@@ -115,15 +112,15 @@ export default function DashboardPage({ activePortfolioId }) {
                </h3>
                <div className="text-right">
                   <p className="text-3xl font-bold text-gray-900 dark:text-[#F4F4F5]">
-                     R${' '}
-                     {bitcoin.value.toLocaleString('pt-BR', {
+                     R${" "}
+                     {bitcoin.value.toLocaleString("pt-BR", {
                         minimumFractionDigits: 2,
                      })}
                   </p>
                   <span
-                     className={`text-sm font-semibold ${bitcoin.change >= 0 ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'}`}
+                     className={`text-sm font-semibold ${bitcoin.change >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
                   >
-                     {bitcoin.change >= 0 ? '+' : ''}
+                     {bitcoin.change >= 0 ? "+" : ""}
                      {bitcoin.change.toFixed(2)}%
                   </span>
                </div>
@@ -137,8 +134,8 @@ export default function DashboardPage({ activePortfolioId }) {
                   Valor Total da Carteira
                </h3>
                <p className="text-4xl font-bold text-gray-900 dark:text-[#F4F4F5]">
-                  R${' '}
-                  {dashboardData.portfolioValue.toLocaleString('pt-BR', {
+                  R${" "}
+                  {valorTotalCarteira.toLocaleString("pt-BR", {
                      minimumFractionDigits: 2,
                   })}
                </p>
@@ -156,7 +153,7 @@ export default function DashboardPage({ activePortfolioId }) {
                         >
                            <span className="font-semibold text-gray-600 dark:text-[#A1A1AA]">
                               [{alert.type.toUpperCase()}]
-                           </span>{' '}
+                           </span>{" "}
                            {alert.message}
                         </li>
                      ))
@@ -205,12 +202,12 @@ export default function DashboardPage({ activePortfolioId }) {
                      </Pie>
                      <Tooltip
                         contentStyle={{
-                           backgroundColor: '#18181B',
-                           borderColor: '#27272A',
-                           color: '#F4F4F5',
-                           borderRadius: '8px',
+                           backgroundColor: "#18181B",
+                           borderColor: "#27272A",
+                           color: "#F4F4F5",
+                           borderRadius: "8px",
                         }}
-                        itemStyle={{ color: '#F4F4F5' }}
+                        itemStyle={{ color: "#F4F4F5" }}
                      />
                      <Legend />
                   </PieChart>
@@ -245,12 +242,12 @@ export default function DashboardPage({ activePortfolioId }) {
                         </Pie>
                         <Tooltip
                            contentStyle={{
-                              backgroundColor: '#18181B',
-                              borderColor: '#27272A',
-                              color: '#F4F4F5',
-                              borderRadius: '8px',
+                              backgroundColor: "#18181B",
+                              borderColor: "#27272A",
+                              color: "#F4F4F5",
+                              borderRadius: "8px",
                            }}
-                           itemStyle={{ color: '#F4F4F5' }}
+                           itemStyle={{ color: "#F4F4F5" }}
                         />
                         <Legend />
                      </PieChart>
@@ -284,12 +281,12 @@ export default function DashboardPage({ activePortfolioId }) {
                         </Pie>
                         <Tooltip
                            contentStyle={{
-                              backgroundColor: '#18181B',
-                              borderColor: '#27272A',
-                              color: '#F4F4F5',
-                              borderRadius: '8px',
+                              backgroundColor: "#18181B",
+                              borderColor: "#27272A",
+                              color: "#F4F4F5",
+                              borderRadius: "8px",
                            }}
-                           itemStyle={{ color: '#F4F4F5' }}
+                           itemStyle={{ color: "#F4F4F5" }}
                         />
                         <Legend />
                      </PieChart>
