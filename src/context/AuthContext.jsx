@@ -1,6 +1,8 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import { authService } from "../services/authService";
 import { carteiraService } from "../services/carteiraService";
+import { apiFetch } from "../services/ApiService.js";
+import { tokenStore } from "../services/tokenStore.js";
 
 const AuthContext = createContext(null);
 
@@ -20,17 +22,18 @@ export function AuthProvider({ children }) {
 
    useEffect(() => {
       const restoreSession = async () => {
-         const token = localStorage.getItem("token");
-         if (token) {
-            try {
-               const apiUser = await authService.me();
-               setUser(apiUser);
-               await loadPortfolios();
-            } catch {
-               localStorage.removeItem("token");
-            }
+         try {
+            const data = await apiFetch("/refresh", { method: "POST" });
+            console.log(data);
+            tokenStore.set(data.token);
+            const apiUser = await authService.me();
+            setUser(apiUser);
+            await loadPortfolios();
+         } catch {
+            tokenStore.clear();
+         } finally {
+            setLoading(false);
          }
-         setLoading(false);
       };
       restoreSession();
    }, []);
@@ -41,7 +44,8 @@ export function AuthProvider({ children }) {
          setUser(apiUser);
          await loadPortfolios();
          return true;
-      } catch {
+      } catch (err) {
+         console.error("Erro no login:", err);
          return false;
       }
    };

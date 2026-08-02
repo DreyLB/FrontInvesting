@@ -1,4 +1,5 @@
 import { apiFetch } from "./ApiService.js";
+import { tokenStore } from "./tokenStore.js";
 
 export const authService = {
    async login(email, password) {
@@ -7,20 +8,16 @@ export const authService = {
          body: JSON.stringify({ email, password }),
       });
 
-      const jwt = data.token.token;
-      const user = data.token.user;
-
-      localStorage.setItem("token", jwt);
-
-      return user;
+      tokenStore.set(data.token.token);
+      return data.token.user;
    },
 
    async logout() {
-      await apiFetch("/logout", {
-         method: "POST",
-      });
-
-      localStorage.removeItem("token");
+      try {
+         await apiFetch("/logout", { method: "POST" });
+      } finally {
+         tokenStore.clear();
+      }
    },
 
    async register(name, email, password) {
