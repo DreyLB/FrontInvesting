@@ -23,10 +23,7 @@ export function AuthProvider({ children }) {
    useEffect(() => {
       const restoreSession = async () => {
          try {
-            const data = await apiFetch("/refresh", { method: "POST" });
-            console.log(data);
-            tokenStore.set(data.token);
-            const apiUser = await authService.me();
+            const apiUser = await authService.refresh();
             setUser(apiUser);
             await loadPortfolios();
          } catch {

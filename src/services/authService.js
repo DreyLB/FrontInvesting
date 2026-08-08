@@ -27,6 +27,12 @@ export const authService = {
       });
    },
 
+   async refresh() {
+      const data = await apiFetch("/refresh", { method: "POST" });
+      tokenStore.set(data.token);
+      return data.user;
+   },
+
    async me() {
       const data = await apiFetch("/me");
       return data.user;
