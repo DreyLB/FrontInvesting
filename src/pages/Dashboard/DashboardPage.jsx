@@ -18,43 +18,65 @@ export default function DashboardPage({ activePortfolioId }) {
    const [ibovespa, setIbovespa] = useState(null);
    const [bitcoin, setBitcoin] = useState(null);
    const [loading, setLoading] = useState(true);
+   const [error, setError] = useState(null);
    const [valorTotalCarteira, setValorTotalCarteira] = useState(null);
 
-   // Paleta de cores vibrantes para destacar os gráficos no fundo escuro
    const chartColors = [
-      "#8884d8", // Roxo
-      "#82ca9d", // Verde
-      "#ffc658", // Amarelo
-      "#ff8042", // Laranja
-      "#0088FE", // Azul
-      "#FFBB28", // Dourado
-      "#FF8042", // Coral
+      "#8884d8",
+      "#82ca9d",
+      "#ffc658",
+      "#ff8042",
+      "#0088FE",
+      "#FFBB28",
+      "#FF8042",
    ];
 
    useEffect(() => {
+      if (!activePortfolioId) return;
+
       const fetchData = async () => {
          setLoading(true);
-         const data = await fakeApi.getDashboardData(activePortfolioId);
-         const portfolio = await fakeApi.getPortfolioData(activePortfolioId);
-         const alertsData = await fakeApi.getAlerts(activePortfolioId);
-         const ibovespaData = await fakeApi.getIbovespa();
-         const bitcoinData = await fakeApi.getBitcoin();
-         const valorTotalResponse =
-            await dashBoardService.listarValorTotalCarteira(activePortfolioId);
+         setError(null);
 
-         const evolucaoCarteira =
-            await dashBoardService.listarEvolucaoCarteira(activePortfolioId);
+         try {
+            const [
+               data,
+               portfolio,
+               alertsData,
+               ibovespaData,
+               bitcoinData,
+               valorTotalResponse,
+               evolucaoCarteira,
+            ] = await Promise.all([
+               fakeApi.getDashboardData(activePortfolioId),
+               fakeApi.getPortfolioData(activePortfolioId),
+               fakeApi.getAlerts(activePortfolioId),
+               fakeApi.getIbovespa(),
+               fakeApi.getBitcoin(),
+               dashBoardService.listarValorTotalCarteira(activePortfolioId),
+               dashBoardService.listarEvolucaoCarteira(activePortfolioId),
+            ]);
 
-         console.log("Evolução da Carteira:", evolucaoCarteira);
+            // Mescla o dado real de evolução por cima do mock,
+            // preservando o resto (ex: portfolioComposition)
+            setDashboardData({
+               ...data,
+               portfolioEvolution: evolucaoCarteira,
+            });
 
-         setValorTotalCarteira(valorTotalResponse?.valorTotal ?? 0);
-         setDashboardData(data);
-         setPortfolioData(portfolio);
-         setAlerts(alertsData);
-         setIbovespa(ibovespaData);
-         setBitcoin(bitcoinData);
-         setLoading(false);
+            setPortfolioData(portfolio);
+            setAlerts(alertsData);
+            setIbovespa(ibovespaData);
+            setBitcoin(bitcoinData);
+            setValorTotalCarteira(valorTotalResponse?.valorTotal ?? 0);
+         } catch (err) {
+            console.error("Erro ao carregar dados do dashboard:", err);
+            setError("Não foi possível carregar os dados do painel.");
+         } finally {
+            setLoading(false);
+         }
       };
+
       fetchData();
    }, [activePortfolioId]);
 
@@ -64,6 +86,10 @@ export default function DashboardPage({ activePortfolioId }) {
             Carregando dados do painel...
          </div>
       );
+
+   if (error)
+      return <div className="text-center mt-8 text-red-500">{error}</div>;
+
    if (!dashboardData || !portfolioData || !alerts || !ibovespa || !bitcoin)
       return (
          <div className="text-center mt-8 text-red-500">
@@ -84,6 +110,7 @@ export default function DashboardPage({ activePortfolioId }) {
 
    const stocksComposition = getCompositionData("Ações");
    const fiisComposition = getCompositionData("FIIs");
+   //console.log(dashboardData.portfolioEvolution);
 
    return (
       <div className="space-y-8">
