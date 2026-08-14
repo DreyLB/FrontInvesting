@@ -3,6 +3,7 @@ import { ativoService } from "../../services/ativoService";
 import { carteiraService } from "../../services/carteiraService";
 import { fakeApi } from "../../services/fakeApi"; // ainda usado para análise IA
 import { useAuth } from "../../context/AuthContext";
+import { formatCurrencyBRL, formatNumberBR } from "@/lib/format";
 
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -274,40 +275,16 @@ export default function PortfolioPage({ activePortfolioId }) {
                                        {ativo.tipo_nome}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-[#A1A1AA]">
-                                       {Number(ativo.quantidade).toLocaleString(
-                                          "pt-BR",
-                                          {
-                                             minimumFractionDigits: 2,
-                                             maximumFractionDigits: 2,
-                                          },
-                                       )}
+                                       {formatNumberBR(ativo.quantidade)}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-[#A1A1AA]">
-                                       R${" "}
-                                       {Number(
-                                          ativo.preco_medio,
-                                       ).toLocaleString("pt-BR", {
-                                          minimumFractionDigits: 2,
-                                          maximumFractionDigits: 2,
-                                       })}
+                                       {formatCurrencyBRL(ativo.preco_medio)}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-[#A1A1AA]">
-                                       R${" "}
-                                       {Number(
-                                          ativo.cotacao_atual,
-                                       ).toLocaleString("pt-BR", {
-                                          minimumFractionDigits: 2,
-                                          maximumFractionDigits: 2,
-                                       })}
+                                       {formatCurrencyBRL(ativo.cotacao_atual)}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-[#F4F4F5]">
-                                       R${" "}
-                                       {Number(
-                                          ativo.valor_atual,
-                                       ).toLocaleString("pt-BR", {
-                                          minimumFractionDigits: 2,
-                                          maximumFractionDigits: 2,
-                                       })}
+                                       {formatCurrencyBRL(ativo.valor_atual)}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                        <span
@@ -317,8 +294,8 @@ export default function PortfolioPage({ activePortfolioId }) {
                                                 : "bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-400"
                                           }`}
                                        >
-                                          {calcularPL(ativo) >= 0 ? "+" : ""} R${" "}
-                                          {calcularPL(ativo).toFixed(2)}
+                                          {calcularPL(ativo) >= 0 ? "+" : ""}{" "}
+                                          {formatCurrencyBRL(calcularPL(ativo))}
                                        </span>
                                     </td>
                                  </tr>

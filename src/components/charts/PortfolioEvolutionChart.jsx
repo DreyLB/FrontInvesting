@@ -8,6 +8,7 @@ import {
    Tooltip,
    Legend,
 } from 'recharts';
+import { formatCurrencyBRL, formatNumberBR } from '@/lib/format';
 
 export default function PortfolioEvolutionChart({ data }) {
    return (
@@ -15,8 +16,12 @@ export default function PortfolioEvolutionChart({ data }) {
          <LineChart data={data}>
             <CartesianGrid strokeDasharray="3 3" stroke="#27272A" />
             <XAxis dataKey="month" stroke="#A1A1AA" />
-            <YAxis stroke="#A1A1AA" />
+            <YAxis
+               stroke="#A1A1AA"
+               tickFormatter={(value) => formatNumberBR(value, 0)}
+            />
             <Tooltip
+               formatter={(value) => formatCurrencyBRL(value)}
                contentStyle={{
                   backgroundColor: '#18181B',
                   borderColor: '#27272A',

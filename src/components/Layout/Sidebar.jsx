@@ -1,12 +1,24 @@
+import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useTheme } from "../../context/ThemeProvider";
 import { useNavigate, useLocation } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 
 const Sidebar = ({ isOpen }) => {
    const { logout, user } = useAuth();
    const { isDarkMode, toggleTheme } = useTheme();
    const navigate = useNavigate();
    const location = useLocation();
+   const [loggingOut, setLoggingOut] = useState(false);
+
+   const handleLogout = async () => {
+      setLoggingOut(true);
+      try {
+         await logout();
+      } finally {
+         setLoggingOut(false);
+      }
+   };
 
    const isActive = (path) => location.pathname === path;
 
@@ -113,10 +125,12 @@ const Sidebar = ({ isOpen }) => {
                   Bem-vindo, {user.name}
                </div>
                <button
-                  onClick={logout}
-                  className="w-full p-2.5 bg-red-500/10 text-red-600 dark:bg-red-500/20 dark:text-red-400 font-medium rounded-md hover:bg-red-500/20 dark:hover:bg-red-500/30 transition-colors"
+                  onClick={handleLogout}
+                  disabled={loggingOut}
+                  className="w-full p-2.5 flex items-center justify-center bg-red-500/10 text-red-600 dark:bg-red-500/20 dark:text-red-400 font-medium rounded-md hover:bg-red-500/20 dark:hover:bg-red-500/30 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                >
-                  Sair
+                  {loggingOut && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {loggingOut ? "Saindo..." : "Sair"}
                </button>
             </div>
          </div>

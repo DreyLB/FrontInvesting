@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef, useMemo } from "react";
 import { transacaoService } from "../../services/transacaoService";
+import { formatCurrencyBRL, formatNumberBR } from "@/lib/format";
 import {
    Select,
    SelectContent,
@@ -281,24 +282,15 @@ export default function TransactionsPage({ activePortfolioId }) {
                                  {t.ticker ?? "—"}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-[#A1A1AA]">
-                                 {Number(t.quantidade).toLocaleString("pt-BR")}
+                                 {formatNumberBR(t.quantidade)}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-[#A1A1AA]">
-                                 R${" "}
-                                 {Number(t.preco_unitario).toLocaleString(
-                                    "pt-BR",
-                                    {
-                                       minimumFractionDigits: 2,
-                                    },
-                                 )}
+                                 {formatCurrencyBRL(t.preco_unitario)}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-[#F4F4F5]">
-                                 R${" "}
-                                 {Number(
+                                 {formatCurrencyBRL(
                                     t.preco_unitario * t.quantidade,
-                                 ).toLocaleString("pt-BR", {
-                                    minimumFractionDigits: 2,
-                                 })}
+                                 )}
                               </td>
                            </tr>
                         ))

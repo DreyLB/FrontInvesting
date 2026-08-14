@@ -3,6 +3,7 @@ import { dashBoardService } from "../../services/dashBoardService";
 import { indicadorMercadoService } from "../../services/indicadorMercadoService";
 import { fakeApi } from "../../services/fakeApi";
 import PortfolioEvolutionChart from "../../components/charts/PortfolioEvolutionChart";
+import { formatCurrencyBRL, formatNumberBR } from "@/lib/format";
 import {
    PieChart,
    Pie,
@@ -12,25 +13,33 @@ import {
    Legend,
 } from "recharts";
 
+const chartColors = [
+   "#8884d8",
+   "#82ca9d",
+   "#ffc658",
+   "#ff8042",
+   "#0088FE",
+   "#FFBB28",
+   "#FF8042",
+];
+
+const withColors = (items) =>
+   items.map((item, index) => ({
+      ...item,
+      color: chartColors[index % chartColors.length],
+   }));
+
 export default function DashboardPage({ activePortfolioId }) {
-   const [dashboardData, setDashboardData] = useState(null);
-   const [portfolioData, setPortfolioData] = useState(null);
+   const [portfolioEvolution, setPortfolioEvolution] = useState(null);
+   const [portfolioComposition, setPortfolioComposition] = useState([]);
+   const [stocksComposition, setStocksComposition] = useState([]);
+   const [fiisComposition, setFiisComposition] = useState([]);
    const [alerts, setAlerts] = useState(null);
    const [ibovespa, setIbovespa] = useState(null);
    const [bitcoin, setBitcoin] = useState(null);
    const [loading, setLoading] = useState(true);
    const [error, setError] = useState(null);
    const [valorTotalCarteira, setValorTotalCarteira] = useState(null);
-
-   const chartColors = [
-      "#8884d8",
-      "#82ca9d",
-      "#ffc658",
-      "#ff8042",
-      "#0088FE",
-      "#FFBB28",
-      "#FF8042",
-   ];
 
    useEffect(() => {
       if (!activePortfolioId) return;
@@ -41,27 +50,48 @@ export default function DashboardPage({ activePortfolioId }) {
 
          try {
             const [
-               data,
-               portfolio,
                alertsData,
                indicadoresMercado,
                valorTotalResponse,
                evolucaoCarteira,
+               composicaoCarteira,
+               composicaoAcoes,
+               composicaoFiis,
             ] = await Promise.all([
-               fakeApi.getDashboardData(activePortfolioId),
-               fakeApi.getPortfolioData(activePortfolioId),
                fakeApi.getAlerts(activePortfolioId),
                indicadorMercadoService.listar(),
                dashBoardService.listarValorTotalCarteira(activePortfolioId),
                dashBoardService.listarEvolucaoCarteira(activePortfolioId),
+               dashBoardService.listarComposicaoCarteira(activePortfolioId),
+               dashBoardService.listarComposicaoAcoes(activePortfolioId),
+               dashBoardService.listarComposicaoFiis(activePortfolioId),
             ]);
 
-            // Mescla o dado real de evolução por cima do mock,
-            // preservando o resto (ex: portfolioComposition)
-            setDashboardData({
-               ...data,
-               portfolioEvolution: evolucaoCarteira,
-            });
+            setPortfolioEvolution(evolucaoCarteira);
+            setPortfolioComposition(
+               withColors(
+                  composicaoCarteira.map((item) => ({
+                     name: item.categoria,
+                     value: item.valor,
+                  })),
+               ),
+            );
+            setStocksComposition(
+               withColors(
+                  composicaoAcoes.map((item) => ({
+                     name: item.ticker,
+                     value: item.valor,
+                  })),
+               ),
+            );
+            setFiisComposition(
+               withColors(
+                  composicaoFiis.map((item) => ({
+                     name: item.ticker,
+                     value: item.valor,
+                  })),
+               ),
+            );
 
             const ibovespaData = indicadoresMercado.find(
                (i) => i.chave === "ibovespa",
@@ -70,7 +100,6 @@ export default function DashboardPage({ activePortfolioId }) {
                (i) => i.chave === "bitcoin",
             );
 
-            setPortfolioData(portfolio);
             setAlerts(alertsData);
             setIbovespa(
                ibovespaData && {
@@ -106,27 +135,12 @@ export default function DashboardPage({ activePortfolioId }) {
    if (error)
       return <div className="text-center mt-8 text-red-500">{error}</div>;
 
-   if (!dashboardData || !portfolioData || !alerts || !ibovespa || !bitcoin)
+   if (!alerts || !ibovespa || !bitcoin)
       return (
          <div className="text-center mt-8 text-red-500">
             Erro ao carregar os dados.
          </div>
       );
-
-   const getCompositionData = (category) => {
-      const filtered = portfolioData.filter(
-         (asset) => asset.category === category,
-      );
-      return filtered.map((asset, index) => ({
-         name: asset.symbol,
-         value: asset.quantity * asset.currentPrice,
-         color: chartColors[index % chartColors.length],
-      }));
-   };
-
-   const stocksComposition = getCompositionData("Ações");
-   const fiisComposition = getCompositionData("FIIs");
-   //console.log(dashboardData.portfolioEvolution);
 
    return (
       <div className="space-y-8">
@@ -142,7 +156,7 @@ export default function DashboardPage({ activePortfolioId }) {
                </h3>
                <div className="text-right">
                   <p className="text-3xl font-bold text-gray-900 dark:text-[#F4F4F5]">
-                     {ibovespa.value.toLocaleString("pt-BR")}
+                     {formatNumberBR(ibovespa.value)}
                   </p>
                   <span
                      className={`text-sm font-semibold ${ibovespa.change >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
@@ -158,10 +172,7 @@ export default function DashboardPage({ activePortfolioId }) {
                </h3>
                <div className="text-right">
                   <p className="text-3xl font-bold text-gray-900 dark:text-[#F4F4F5]">
-                     R${" "}
-                     {bitcoin.value.toLocaleString("pt-BR", {
-                        minimumFractionDigits: 2,
-                     })}
+                     {formatCurrencyBRL(bitcoin.value)}
                   </p>
                   <span
                      className={`text-sm font-semibold ${bitcoin.change >= 0 ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
@@ -180,10 +191,7 @@ export default function DashboardPage({ activePortfolioId }) {
                   Valor Total da Carteira
                </h3>
                <p className="text-4xl font-bold text-gray-900 dark:text-[#F4F4F5]">
-                  R${" "}
-                  {valorTotalCarteira.toLocaleString("pt-BR", {
-                     minimumFractionDigits: 2,
-                  })}
+                  {formatCurrencyBRL(valorTotalCarteira)}
                </p>
             </div>
             <div className="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] p-6 rounded-lg shadow-sm col-span-1 md:col-span-2 lg:col-span-2">
@@ -220,7 +228,7 @@ export default function DashboardPage({ activePortfolioId }) {
                </h3>
                {/* Componente Modular Inserido Aqui */}
                <PortfolioEvolutionChart
-                  data={dashboardData.portfolioEvolution}
+                  data={portfolioEvolution}
                />
             </div>
             <div className="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A] p-6 rounded-lg shadow-sm">
@@ -230,7 +238,7 @@ export default function DashboardPage({ activePortfolioId }) {
                <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
                      <Pie
-                        data={dashboardData.portfolioComposition}
+                        data={portfolioComposition}
                         cx="50%"
                         cy="50%"
                         labelLine={false}
@@ -240,13 +248,14 @@ export default function DashboardPage({ activePortfolioId }) {
                         stroke="#18181B"
                         strokeWidth={2}
                      >
-                        {dashboardData.portfolioComposition.map(
+                        {portfolioComposition.map(
                            (entry, index) => (
                               <Cell key={`cell-${index}`} fill={entry.color} />
                            ),
                         )}
                      </Pie>
                      <Tooltip
+                        formatter={(value) => formatCurrencyBRL(value)}
                         contentStyle={{
                            backgroundColor: "#18181B",
                            borderColor: "#27272A",
@@ -287,6 +296,7 @@ export default function DashboardPage({ activePortfolioId }) {
                            ))}
                         </Pie>
                         <Tooltip
+                           formatter={(value) => formatCurrencyBRL(value)}
                            contentStyle={{
                               backgroundColor: "#18181B",
                               borderColor: "#27272A",
@@ -326,6 +336,7 @@ export default function DashboardPage({ activePortfolioId }) {
                            ))}
                         </Pie>
                         <Tooltip
+                           formatter={(value) => formatCurrencyBRL(value)}
                            contentStyle={{
                               backgroundColor: "#18181B",
                               borderColor: "#27272A",

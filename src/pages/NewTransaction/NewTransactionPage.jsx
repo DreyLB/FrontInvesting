@@ -3,10 +3,12 @@ import { useNavigate } from "react-router-dom";
 import { transacaoService } from "../../services/transacaoService";
 import { ativoService } from "../../services/ativoService";
 import { dividendoService } from "../../services/dividendoService";
+import { formatNumberBR } from "@/lib/format";
 
 import { Plus, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { MoneyInput } from "@/components/ui/money-input";
 import { Field, FieldLabel } from "@/components/ui/field";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -17,7 +19,6 @@ import {
 import {
    InputGroup,
    InputGroupAddon,
-   InputGroupInput,
    InputGroupText,
 } from "@/components/ui/input-group";
 import {
@@ -74,9 +75,7 @@ export default function NewTransactionPage({ activePortfolioId }) {
 
    const valorTotal =
       quantity && price
-         ? (parseFloat(quantity) * parseFloat(price)).toLocaleString("pt-BR", {
-              minimumFractionDigits: 2,
-           })
+         ? formatNumberBR(parseFloat(quantity) * price)
          : null;
 
    // Debounce busca no catálogo
@@ -143,21 +142,21 @@ export default function NewTransactionPage({ activePortfolioId }) {
             await transacaoService.comprar(activePortfolioId, {
                asset_id: ativoCompra.id,
                quantidade: parseFloat(quantity),
-               preco_unitario: parseFloat(price),
+               preco_unitario: price,
                data: dataFormatada,
             });
          } else if (type === "venda") {
             await transacaoService.vender(activePortfolioId, {
                asset_id: parseInt(ativoSelecionado),
                quantidade: parseFloat(quantity),
-               preco_unitario: parseFloat(price),
+               preco_unitario: price,
                data: dataFormatada,
             });
          } else if (type === "dividendo") {
             await dividendoService.registrar(
                activePortfolioId,
                parseInt(ativoSelecionado),
-               { valor: parseFloat(valorDividendo), data: dataFormatada },
+               { valor: valorDividendo, data: dataFormatada },
             );
          }
 
@@ -271,7 +270,7 @@ export default function NewTransactionPage({ activePortfolioId }) {
                               className="p-5 bg-white dark:bg-background text-base [&_button]:h-8 [&_button]:w-8 [&_caption]:text-base [&_caption_dropdowns]:gap-2"
                               onSelect={(d) => {
                                  setDate(d);
-                                 setOpen(false);
+                                 setOpenCal(false);
                               }}
                            />
                         </PopoverContent>
@@ -418,15 +417,11 @@ export default function NewTransactionPage({ activePortfolioId }) {
                            <InputGroupAddon>
                               <InputGroupText>R$</InputGroupText>
                            </InputGroupAddon>
-                           <InputGroupInput
-                              type="number"
-                              step="0.01"
-                              min="0"
-                              placeholder="0.00"
+                           <MoneyInput
+                              placeholder="0,00"
                               value={price}
-                              onChange={(e) => setPrice(e.target.value)}
+                              onValueChange={setPrice}
                               required
-                              className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                            />
                            <InputGroupAddon align="inline-end">
                               <InputGroupText>BRL</InputGroupText>
@@ -444,15 +439,11 @@ export default function NewTransactionPage({ activePortfolioId }) {
                         <InputGroupAddon>
                            <InputGroupText>R$</InputGroupText>
                         </InputGroupAddon>
-                        <InputGroupInput
-                           type="number"
-                           step="0.01"
-                           min="0"
-                           placeholder="0.00"
+                        <MoneyInput
+                           placeholder="0,00"
                            value={valorDividendo}
-                           onChange={(e) => setValorDividendo(e.target.value)}
+                           onValueChange={setValorDividendo}
                            required
-                           className="[appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                         />
                         <InputGroupAddon align="inline-end">
                            <InputGroupText>BRL</InputGroupText>

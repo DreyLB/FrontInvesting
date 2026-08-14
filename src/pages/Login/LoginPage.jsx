@@ -1,18 +1,23 @@
 import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate, Link } from "react-router-dom";
+import { Loader2 } from "lucide-react";
 
 export default function LoginPage() {
    const [username, setUsername] = useState("");
    const [password, setPassword] = useState("");
    const [error, setError] = useState("");
+   const [loading, setLoading] = useState(false);
    const { login } = useAuth();
    const navigate = useNavigate();
 
    const handleLogin = async (e) => {
       e.preventDefault();
       setError("");
+      setLoading(true);
       const success = await login(username, password);
+      setLoading(false);
+
       if (success) {
          navigate("/dashboard");
       } else {
@@ -35,12 +40,13 @@ export default function LoginPage() {
                      Email
                   </label>
                   <input
-                     className="w-full px-4 py-2.5 text-gray-900 dark:text-[#F4F4F5] bg-white dark:bg-[#09090B] border border-gray-300 dark:border-[#27272A] rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-[#A1A1AA] transition-colors"
+                     className="w-full px-4 py-2.5 text-gray-900 dark:text-[#F4F4F5] bg-white dark:bg-[#09090B] border border-gray-300 dark:border-[#27272A] rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-[#A1A1AA] transition-colors disabled:opacity-50"
                      id="username"
                      type="email"
                      placeholder="seuemail@exemplo.com"
                      value={username}
                      onChange={(e) => setUsername(e.target.value)}
+                     disabled={loading}
                      required
                   />
                </div>
@@ -52,12 +58,13 @@ export default function LoginPage() {
                      Senha
                   </label>
                   <input
-                     className="w-full px-4 py-2.5 text-gray-900 dark:text-[#F4F4F5] bg-white dark:bg-[#09090B] border border-gray-300 dark:border-[#27272A] rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-[#A1A1AA] transition-colors"
+                     className="w-full px-4 py-2.5 text-gray-900 dark:text-[#F4F4F5] bg-white dark:bg-[#09090B] border border-gray-300 dark:border-[#27272A] rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-[#A1A1AA] transition-colors disabled:opacity-50"
                      id="password"
                      type="password"
                      placeholder="••••••••"
                      value={password}
                      onChange={(e) => setPassword(e.target.value)}
+                     disabled={loading}
                      required
                   />
                </div>
@@ -68,9 +75,11 @@ export default function LoginPage() {
                )}
                <button
                   type="submit"
-                  className="w-full mt-2 bg-gray-900 text-white dark:bg-[#F4F4F5] dark:text-[#09090B] font-bold py-3 px-4 rounded-lg hover:bg-gray-800 dark:hover:bg-[#e4e4e7] focus:outline-none transition-colors"
+                  disabled={loading}
+                  className="w-full mt-2 flex items-center justify-center bg-gray-900 text-white dark:bg-[#F4F4F5] dark:text-[#09090B] font-bold py-3 px-4 rounded-lg hover:bg-gray-800 dark:hover:bg-[#e4e4e7] focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                >
-                  Entrar
+                  {loading && <Loader2 className="mr-2 h-5 w-5 animate-spin" />}
+                  {loading ? "Entrando..." : "Entrar"}
                </button>
                <p className="text-center text-sm text-gray-500 dark:text-[#A1A1AA]">
                   Não tem uma conta?{" "}
