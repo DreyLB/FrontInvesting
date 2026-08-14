@@ -6,4 +6,11 @@ export const carteiraService = {
 
       return data;
    },
+
+   async criar({ nome, descricao }) {
+      return await apiFetch("/carteiras", {
+         method: "POST",
+         body: JSON.stringify({ nome, descricao }),
+      });
+   },
 };

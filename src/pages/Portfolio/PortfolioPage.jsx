@@ -1,14 +1,39 @@
 import { useEffect, useState } from "react";
 import { ativoService } from "../../services/ativoService";
+import { carteiraService } from "../../services/carteiraService";
 import { fakeApi } from "../../services/fakeApi"; // ainda usado para análise IA
+import { useAuth } from "../../context/AuthContext";
+
+import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Field, FieldLabel } from "@/components/ui/field";
+import {
+   Dialog,
+   DialogContent,
+   DialogDescription,
+   DialogFooter,
+   DialogHeader,
+   DialogTitle,
+   DialogTrigger,
+} from "@/components/ui/dialog";
 
 export default function PortfolioPage({ activePortfolioId }) {
+   const { refreshPortfolios } = useAuth();
+
    const [data, setData] = useState([]);
    const [loading, setLoading] = useState(true);
    const [analysis, setAnalysis] = useState("");
    const [suggestions, setSuggestions] = useState("");
    const [loadingAnalysis, setLoadingAnalysis] = useState(false);
    const [loadingSuggestions, setLoadingSuggestions] = useState(false);
+
+   const [openNovaCarteira, setOpenNovaCarteira] = useState(false);
+   const [nomeCarteira, setNomeCarteira] = useState("");
+   const [descricaoCarteira, setDescricaoCarteira] = useState("");
+   const [criandoCarteira, setCriandoCarteira] = useState(false);
+   const [erroCarteira, setErroCarteira] = useState(null);
 
    useEffect(() => {
       if (!activePortfolioId) return;
@@ -42,35 +67,132 @@ export default function PortfolioPage({ activePortfolioId }) {
       setLoadingSuggestions(false);
    };
 
-   if (loading)
-      return (
-         <div className="text-center mt-8 text-gray-800 dark:text-[#A1A1AA]">
-            Carregando carteira...
-         </div>
-      );
+   const handleCriarCarteira = async (e) => {
+      e.preventDefault();
+      setErroCarteira(null);
 
-   if (!data.length)
-      return (
-         <div className="text-center mt-8 text-gray-500 dark:text-[#A1A1AA]">
-            Nenhum ativo encontrado nesta carteira.
-         </div>
-      );
+      if (!nomeCarteira.trim()) {
+         setErroCarteira("Informe um nome para a carteira.");
+         return;
+      }
+
+      setCriandoCarteira(true);
+      try {
+         await carteiraService.criar({
+            nome: nomeCarteira.trim(),
+            descricao: descricaoCarteira.trim() || undefined,
+         });
+         await refreshPortfolios?.();
+         setOpenNovaCarteira(false);
+         setNomeCarteira("");
+         setDescricaoCarteira("");
+      } catch (err) {
+         setErroCarteira(err.message || "Erro ao criar carteira.");
+      } finally {
+         setCriandoCarteira(false);
+      }
+   };
 
    // Agrupa por tipo_nome (equivalente ao category do mock)
    const tiposUnicos = [...new Set(data.map((a) => a.tipo_nome))];
 
    const calcularPL = (ativo) => {
       const custo = ativo.quantidade * ativo.preco_medio;
-      const valor = ativo.valor_total; // valor_total já é quantidade * preço atual
+      const valor = ativo.valor_atual;
       return valor - custo;
    };
 
    return (
       <div className="space-y-8">
-         <h2 className="text-3xl font-bold text-gray-800 dark:text-[#F4F4F5]">
-            Minha Carteira
-         </h2>
+         <div className="flex items-center justify-between gap-4">
+            <h2 className="text-3xl font-bold text-gray-800 dark:text-[#F4F4F5]">
+               Minha Carteira
+            </h2>
 
+            <Dialog
+               open={openNovaCarteira}
+               onOpenChange={(open) => {
+                  setOpenNovaCarteira(open);
+                  if (!open) setErroCarteira(null);
+               }}
+            >
+               <DialogTrigger asChild>
+                  <Button className="bg-gray-900 text-white dark:bg-[#F4F4F5] dark:text-[#09090B] hover:bg-gray-800 dark:hover:bg-[#e4e4e7]">
+                     <Plus className="h-4 w-4" />
+                     Nova Carteira
+                  </Button>
+               </DialogTrigger>
+               <DialogContent className="bg-white dark:bg-[#18181B] border border-gray-200 dark:border-[#27272A]">
+                  <DialogHeader>
+                     <DialogTitle className="text-gray-900 dark:text-[#F4F4F5]">
+                        Nova Carteira
+                     </DialogTitle>
+                     <DialogDescription className="text-gray-500 dark:text-[#A1A1AA]">
+                        Crie uma nova carteira para organizar seus
+                        investimentos.
+                     </DialogDescription>
+                  </DialogHeader>
+
+                  <form onSubmit={handleCriarCarteira} className="space-y-4">
+                     <Field>
+                        <FieldLabel>Nome</FieldLabel>
+                        <Input
+                           type="text"
+                           placeholder="Ex: Carteira Principal"
+                           value={nomeCarteira}
+                           onChange={(e) => setNomeCarteira(e.target.value)}
+                           maxLength={255}
+                           required
+                           className="bg-background border border-gray-300 dark:border-[#27272A] text-gray-900 dark:text-white"
+                        />
+                     </Field>
+
+                     <Field>
+                        <FieldLabel>Descrição (opcional)</FieldLabel>
+                        <Textarea
+                           placeholder="Ex: Aposentadoria, longo prazo..."
+                           value={descricaoCarteira}
+                           onChange={(e) =>
+                              setDescricaoCarteira(e.target.value)
+                           }
+                           className="bg-background border border-gray-300 dark:border-[#27272A] text-gray-900 dark:text-white"
+                        />
+                     </Field>
+
+                     {erroCarteira && (
+                        <div className="p-3 rounded-lg text-sm font-medium border bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border-red-200 dark:border-red-800">
+                           {erroCarteira}
+                        </div>
+                     )}
+
+                     <DialogFooter>
+                        <Button
+                           type="submit"
+                           disabled={criandoCarteira}
+                           className="bg-gray-900 text-white dark:bg-[#F4F4F5] dark:text-[#09090B] hover:bg-gray-800 dark:hover:bg-[#e4e4e7]"
+                        >
+                           {criandoCarteira ? "Criando..." : "Criar carteira"}
+                        </Button>
+                     </DialogFooter>
+                  </form>
+               </DialogContent>
+            </Dialog>
+         </div>
+
+         {loading && (
+            <div className="text-center mt-8 text-gray-800 dark:text-[#A1A1AA]">
+               Carregando carteira...
+            </div>
+         )}
+
+         {!loading && !data.length && (
+            <div className="text-center mt-8 text-gray-500 dark:text-[#A1A1AA]">
+               Nenhum ativo encontrado nesta carteira.
+            </div>
+         )}
+
+         {!loading && data.length > 0 && (
+         <>
          <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4">
             <button
                onClick={handleAnalyzePortfolio}
@@ -169,19 +291,19 @@ export default function PortfolioPage({ activePortfolioId }) {
                                           maximumFractionDigits: 2,
                                        })}
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-[#F4F4F5]">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-[#A1A1AA]">
                                        R${" "}
                                        {Number(
-                                          ativo.valor_total,
+                                          ativo.cotacao_atual,
                                        ).toLocaleString("pt-BR", {
                                           minimumFractionDigits: 2,
                                           maximumFractionDigits: 2,
                                        })}
                                     </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-[#A1A1AA]">
+                                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-[#F4F4F5]">
                                        R${" "}
-                                       {(
-                                          ativo.quantidade * ativo.preco_medio
+                                       {Number(
+                                          ativo.valor_atual,
                                        ).toLocaleString("pt-BR", {
                                           minimumFractionDigits: 2,
                                           maximumFractionDigits: 2,
@@ -207,6 +329,8 @@ export default function PortfolioPage({ activePortfolioId }) {
                </div>
             </div>
          ))}
+         </>
+         )}
       </div>
    );
 }

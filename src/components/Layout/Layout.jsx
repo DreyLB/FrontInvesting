@@ -35,14 +35,24 @@ export const Layout = () => {
       <div className="flex flex-col md:flex-row h-screen overflow-hidden bg-gray-100 dark:bg-[#09090B] font-inter">
          <Sidebar isOpen={isSidebarOpen} />
 
+         {/* Overlay para fechar o sidebar ao tocar fora dele (mobile) */}
+         {isSidebarOpen && (
+            <div
+               onClick={() => setIsSidebarOpen(false)}
+               className="fixed inset-0 z-10 bg-black/40 md:hidden"
+               aria-hidden="true"
+            />
+         )}
+
          {/* Botão grudado no sidebar */}
          <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            aria-label={isSidebarOpen ? "Fechar menu" : "Abrir menu"}
             className={`
                         fixed top-1/2 -translate-y-1/2 z-30
                         transition-all duration-300
 
-                        ${isSidebarOpen ? "left-0" : "left-0"}
+                        ${isSidebarOpen ? "left-64" : "left-0"}
 
                         bg-white dark:bg-[#18181B]
                         border border-gray-200 dark:border-[#27272A]

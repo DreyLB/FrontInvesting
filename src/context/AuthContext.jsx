@@ -72,6 +72,7 @@ export function AuthProvider({ children }) {
             loading,
             register,
             isAuthenticated: !!user,
+            refreshPortfolios: loadPortfolios,
          }}
       >
          {children}

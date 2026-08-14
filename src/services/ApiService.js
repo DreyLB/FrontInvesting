@@ -19,7 +19,9 @@ export async function apiFetch(path, options = {}) {
       if (res.status === 401) {
          tokenStore.clear();
       }
-      throw new Error(`API error: ${res.status}`);
+
+      const body = await res.json().catch(() => null);
+      throw new Error(body?.message || `API error: ${res.status}`);
    }
 
    return res.json();

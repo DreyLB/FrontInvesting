@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { dashBoardService } from "../../services/dashBoardService";
+import { indicadorMercadoService } from "../../services/indicadorMercadoService";
 import { fakeApi } from "../../services/fakeApi";
 import PortfolioEvolutionChart from "../../components/charts/PortfolioEvolutionChart";
 import {
@@ -43,16 +44,14 @@ export default function DashboardPage({ activePortfolioId }) {
                data,
                portfolio,
                alertsData,
-               ibovespaData,
-               bitcoinData,
+               indicadoresMercado,
                valorTotalResponse,
                evolucaoCarteira,
             ] = await Promise.all([
                fakeApi.getDashboardData(activePortfolioId),
                fakeApi.getPortfolioData(activePortfolioId),
                fakeApi.getAlerts(activePortfolioId),
-               fakeApi.getIbovespa(),
-               fakeApi.getBitcoin(),
+               indicadorMercadoService.listar(),
                dashBoardService.listarValorTotalCarteira(activePortfolioId),
                dashBoardService.listarEvolucaoCarteira(activePortfolioId),
             ]);
@@ -64,10 +63,27 @@ export default function DashboardPage({ activePortfolioId }) {
                portfolioEvolution: evolucaoCarteira,
             });
 
+            const ibovespaData = indicadoresMercado.find(
+               (i) => i.chave === "ibovespa",
+            );
+            const bitcoinData = indicadoresMercado.find(
+               (i) => i.chave === "bitcoin",
+            );
+
             setPortfolioData(portfolio);
             setAlerts(alertsData);
-            setIbovespa(ibovespaData);
-            setBitcoin(bitcoinData);
+            setIbovespa(
+               ibovespaData && {
+                  value: ibovespaData.valor,
+                  change: ibovespaData.variacao_percentual,
+               },
+            );
+            setBitcoin(
+               bitcoinData && {
+                  value: bitcoinData.valor,
+                  change: bitcoinData.variacao_percentual,
+               },
+            );
             setValorTotalCarteira(valorTotalResponse?.valorTotal ?? 0);
          } catch (err) {
             console.error("Erro ao carregar dados do dashboard:", err);
