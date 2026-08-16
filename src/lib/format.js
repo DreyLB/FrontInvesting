@@ -6,6 +6,16 @@ export function formatNumberBR(value, decimals = 2) {
    });
 }
 
+// Formata quantidade de ativos: sem casas decimais quando é inteiro,
+// com vírgula (padrão BR) quando há fração (ex: cripto fracionada).
+export function formatQuantity(value, maxDecimals = 8) {
+   const numero = Number(value) || 0;
+   return numero.toLocaleString("pt-BR", {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: maxDecimals,
+   });
+}
+
 export function formatCurrencyBRL(value) {
    return `R$ ${formatNumberBR(value, 2)}`;
 }

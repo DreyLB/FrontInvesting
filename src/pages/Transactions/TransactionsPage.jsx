@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, useMemo } from "react";
 import { transacaoService } from "../../services/transacaoService";
-import { formatCurrencyBRL, formatNumberBR } from "@/lib/format";
+import { formatCurrencyBRL, formatQuantity } from "@/lib/format";
 import {
    Select,
    SelectContent,
@@ -282,7 +282,7 @@ export default function TransactionsPage({ activePortfolioId }) {
                                  {t.ticker ?? "—"}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-[#A1A1AA]">
-                                 {formatNumberBR(t.quantidade)}
+                                 {formatQuantity(t.quantidade)}
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-[#A1A1AA]">
                                  {formatCurrencyBRL(t.preco_unitario)}

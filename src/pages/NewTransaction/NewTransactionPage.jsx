@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { transacaoService } from "../../services/transacaoService";
 import { ativoService } from "../../services/ativoService";
 import { dividendoService } from "../../services/dividendoService";
-import { formatNumberBR } from "@/lib/format";
+import { formatNumberBR, formatQuantity } from "@/lib/format";
 
 import { Plus, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -383,7 +383,7 @@ export default function NewTransactionPage({ activePortfolioId }) {
                                        >
                                           {p.ticker} — {p.nome}
                                           {type === "venda" &&
-                                             ` (${p.quantidade} disponíveis)`}
+                                             ` (${formatQuantity(p.quantidade)} disponíveis)`}
                                        </SelectItem>
                                     ))
                                  )}

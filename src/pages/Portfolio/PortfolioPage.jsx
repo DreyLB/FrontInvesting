@@ -3,7 +3,7 @@ import { ativoService } from "../../services/ativoService";
 import { carteiraService } from "../../services/carteiraService";
 import { fakeApi } from "../../services/fakeApi"; // ainda usado para análise IA
 import { useAuth } from "../../context/AuthContext";
-import { formatCurrencyBRL, formatNumberBR } from "@/lib/format";
+import { formatCurrencyBRL, formatQuantity } from "@/lib/format";
 
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -275,7 +275,7 @@ export default function PortfolioPage({ activePortfolioId }) {
                                        {ativo.tipo_nome}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-[#A1A1AA]">
-                                       {formatNumberBR(ativo.quantidade)}
+                                       {formatQuantity(ativo.quantidade)}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-[#A1A1AA]">
                                        {formatCurrencyBRL(ativo.preco_medio)}
