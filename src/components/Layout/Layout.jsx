@@ -58,7 +58,7 @@ export const Layout = () => {
                         border border-gray-200 dark:border-[#27272A]
                         shadow-md
                         rounded-r-md
-                        p-2
+                        text-xs px-1 py-3
                         hover:bg-gray-100 dark:hover:bg-[#27272A]
                      `}
          >
