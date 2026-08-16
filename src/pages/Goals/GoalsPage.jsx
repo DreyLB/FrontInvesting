@@ -1,19 +1,8 @@
-import { useEffect, useState } from 'react';
-import { fakeApi } from '../../services/fakeApi';
+import { useState } from 'react';
 
-export default function GoalsPage({ activePortfolioId }) {
-   const [data, setData] = useState(null);
-   const [loading, setLoading] = useState(true);
-
-   useEffect(() => {
-      const fetchData = async () => {
-         setLoading(true);
-         const goalsData = await fakeApi.getGoals(activePortfolioId);
-         setData(goalsData);
-         setLoading(false);
-      };
-      fetchData();
-   }, [activePortfolioId]);
+export default function GoalsPage() {
+   const [data] = useState([]);
+   const [loading] = useState(false);
 
    if (loading)
       return (

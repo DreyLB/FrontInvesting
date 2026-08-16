@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { dashBoardService } from "../../services/dashBoardService";
 import { indicadorMercadoService } from "../../services/indicadorMercadoService";
-import { fakeApi } from "../../services/fakeApi";
 import PortfolioEvolutionChart from "../../components/charts/PortfolioEvolutionChart";
 import { formatCurrencyBRL, formatNumberBR } from "@/lib/format";
 import {
@@ -50,7 +49,6 @@ export default function DashboardPage({ activePortfolioId }) {
 
          try {
             const [
-               alertsData,
                indicadoresMercado,
                valorTotalResponse,
                evolucaoCarteira,
@@ -58,7 +56,6 @@ export default function DashboardPage({ activePortfolioId }) {
                composicaoAcoes,
                composicaoFiis,
             ] = await Promise.all([
-               fakeApi.getAlerts(activePortfolioId),
                indicadorMercadoService.listar(),
                dashBoardService.listarValorTotalCarteira(activePortfolioId),
                dashBoardService.listarEvolucaoCarteira(activePortfolioId),
@@ -100,7 +97,7 @@ export default function DashboardPage({ activePortfolioId }) {
                (i) => i.chave === "bitcoin",
             );
 
-            setAlerts(alertsData);
+            setAlerts([]);
             setIbovespa(
                ibovespaData && {
                   value: ibovespaData.valor,
